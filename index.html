@@ -6,654 +6,809 @@
 <title>AIお部屋相談</title>
 <style>
   :root {
+    --red: #e8380d;
+    --red-dark: #c72d08;
+    --orange: #f5a623;
     --primary: #1a2744;
-    --accent: #c9a84c;
     --bg: #f5f4f0;
     --white: #ffffff;
-    --text: #1a1a2e;
-    --sub: #6b7280;
+    --text: #222222;
+    --sub: #777777;
     --border: #e5e3dc;
     --success: #059669;
-    --warning: #d97706;
-    --info: #2563eb;
-    --radius: 14px;
+    --radius: 10px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); }
   button { cursor: pointer; font-family: inherit; }
-  input, select, textarea { font-family: inherit; }
+  input { font-family: inherit; }
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  /* ===== LAYOUT ===== */
-  #app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; background: var(--white); box-shadow: 0 0 40px rgba(0,0,0,.08); position: relative; }
+  #app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; background: var(--white); box-shadow: 0 0 40px rgba(0,0,0,.08); }
 
-  /* ===== HEADER ===== */
-  .header { background: var(--primary); padding: 0; flex-shrink: 0; }
-  .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
-  .logo { display: flex; align-items: center; gap: 8px; }
-  .logo-title { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: .05em; }
-  .logo-sub { color: var(--accent); font-size: 10px; letter-spacing: .08em; }
-  .progress-bar-wrap { height: 3px; background: rgba(255,255,255,.1); }
-  .progress-bar-fill { height: 100%; background: var(--accent); transition: width .5s ease; }
-  .progress-badge { background: rgba(201,168,76,.2); color: var(--accent); font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(201,168,76,.4); }
+  /* HEADER */
+  .hdr { background: var(--red); flex-shrink: 0; }
+  .hdr-inner { display: flex; align-items: center; justify-content: space-between; padding: 11px 15px; }
+  .hdr-logo { display: flex; align-items: center; gap: 8px; }
+  .hdr-mark { background: var(--white); color: var(--red); font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 3px; letter-spacing: .02em; }
+  .hdr-title { color: var(--white); font-size: 14px; font-weight: 700; }
+  .hdr-staff-btn { background: rgba(255,255,255,.2); color: var(--white); border: 1px solid rgba(255,255,255,.4); border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 600; }
+  .prog-wrap { height: 3px; background: rgba(255,255,255,.2); }
+  .prog-fill { height: 100%; background: var(--orange); transition: width .5s ease; }
 
-  /* ===== SCREENS ===== */
+  /* SCREENS */
   .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
   .screen.active { display: flex; }
 
-  /* ===== BOTTOM NAV ===== */
-  .bottom-nav { display: flex; background: var(--white); border-top: 1px solid var(--border); flex-shrink: 0; }
-  .bottom-nav button { flex: 1; padding: 10px 4px; border: none; background: none; font-size: 11px; color: var(--sub); display: flex; flex-direction: column; align-items: center; gap: 2px; transition: color .15s; }
-  .bottom-nav button.active { color: var(--primary); font-weight: 600; }
-  .bottom-nav button span:first-child { font-size: 18px; }
+  /* ===== LOGIN SCREEN ===== */
+  .login-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; gap: 20px; }
+  .login-icon { width: 72px; height: 72px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+  .login-title { font-size: 20px; font-weight: 700; color: var(--primary); text-align: center; }
+  .login-sub { font-size: 13px; color: var(--sub); text-align: center; line-height: 1.6; }
+  .login-form { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+  .login-input { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 16px; outline: none; color: var(--text); background: var(--bg); text-align: center; letter-spacing: .1em; }
+  .login-input:focus { border-color: var(--red); }
+  .login-btn { background: var(--red); color: var(--white); border: none; border-radius: var(--radius); padding: 14px; font-size: 15px; font-weight: 700; width: 100%; }
+  .login-err { color: var(--red); font-size: 13px; text-align: center; display: none; }
+  .login-back { background: none; border: none; color: var(--sub); font-size: 13px; margin-top: 4px; }
 
   /* ===== MODE SELECT ===== */
   .mode-wrap { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
-  .mode-hero { text-align: center; padding: 8px 0; }
+  .mode-hero { text-align: center; background: var(--red); color: var(--white); border-radius: var(--radius); padding: 20px 16px; }
+  .mode-hero-title { font-size: 20px; font-weight: 900; line-height: 1.4; margin-bottom: 6px; }
+  .mode-hero-sub { font-size: 12px; opacity: .85; line-height: 1.6; }
   .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .mode-card { padding: 14px 12px; border: 2px solid var(--border); border-radius: 12px; background: none; text-align: left; transition: all .15s; }
-  .mode-card.sel { border-color: var(--primary); background: #f0f2f8; }
-  .mode-card-name { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
-  .mode-card-time { font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 6px; }
-  .mode-card-desc { font-size: 11px; color: var(--sub); line-height: 1.4; }
-  .start-btn { background: var(--primary); color: #fff; border: none; border-radius: var(--radius); padding: 16px; font-size: 16px; font-weight: 700; width: 100%; letter-spacing: .05em; box-shadow: 0 4px 16px rgba(26,39,68,.25); }
+  .mode-card { padding: 14px 12px; border: 2px solid var(--border); border-radius: var(--radius); background: none; text-align: left; transition: all .15s; }
+  .mode-card.sel { border-color: var(--red); background: #fff5f3; }
+  .mode-name { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
+  .mode-time { font-size: 11px; color: var(--red); font-weight: 700; margin-bottom: 5px; }
+  .mode-desc { font-size: 11px; color: var(--sub); line-height: 1.4; }
+  .start-btn { background: var(--red); color: var(--white); border: none; border-radius: var(--radius); padding: 16px; font-size: 16px; font-weight: 900; width: 100%; letter-spacing: .03em; box-shadow: 0 4px 16px rgba(232,56,13,.3); }
+  .privacy-note { text-align: center; font-size: 11px; color: var(--sub); }
 
   /* ===== CHAT ===== */
-  .messages { flex: 1; overflow-y: auto; padding: 14px 12px; display: flex; flex-direction: column; gap: 10px; }
+  .messages { flex: 1; overflow-y: auto; padding: 14px 12px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); }
   .msg-row { display: flex; align-items: flex-end; gap: 7px; }
   .msg-row.user { justify-content: flex-end; }
-  .ai-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; flex-shrink: 0; letter-spacing: .04em; }
-  .bubble { max-width: 80%; padding: 10px 13px; font-size: 14px; line-height: 1.6; position: relative; white-space: pre-wrap; word-break: break-word; }
-  .bubble.ai { background: var(--bg); border-radius: 16px 16px 16px 3px; }
-  .bubble.user { background: var(--primary); color: #fff; border-radius: 16px 16px 3px 16px; }
-  .bubble-time { display: block; font-size: 10px; opacity: .5; margin-top: 3px; text-align: right; }
-  .typing-bubble { background: var(--bg); border-radius: 16px 16px 16px 3px; padding: 12px 14px; display: flex; gap: 4px; align-items: center; }
+  .ai-av { width: 30px; height: 30px; border-radius: 50%; background: var(--red); color: var(--white); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 900; flex-shrink: 0; }
+  .bubble { max-width: 80%; padding: 10px 13px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+  .bubble.ai { background: var(--white); border-radius: 14px 14px 14px 3px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  .bubble.user { background: var(--red); color: var(--white); border-radius: 14px 14px 3px 14px; }
+  .btime { display: block; font-size: 10px; opacity: .5; margin-top: 3px; text-align: right; }
+  .typing-b { background: var(--white); border-radius: 14px 14px 14px 3px; padding: 12px 14px; display: flex; gap: 4px; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
   .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sub); animation: dots 1.2s infinite; }
   @keyframes dots { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-4px);opacity:1} }
   @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-  .fade-up { animation: fadeUp .25s ease forwards; }
+  .fu { animation: fadeUp .25s ease forwards; }
 
-  /* ===== INPUT ===== */
-  .input-area { padding: 10px 12px; background: var(--white); border-top: 1px solid var(--border); flex-shrink: 0; }
-  .opts-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
-  .opt-btn { padding: 8px 13px; border: 1.5px solid var(--border); border-radius: 20px; font-size: 13px; background: var(--bg); color: var(--text); transition: all .15s; font-weight: 500; }
-  .opt-btn.sel { background: var(--primary); color: #fff; border-color: var(--primary); }
-  .multi-submit { margin-top: 8px; background: var(--primary); color: #fff; border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 600; width: 100%; }
-  .text-row { display: flex; gap: 8px; align-items: center; }
-  .text-input { flex: 1; background: var(--bg); border: 1.5px solid var(--border); border-radius: 24px; padding: 11px 16px; font-size: 15px; outline: none; color: var(--text); }
-  .send-btn { width: 44px; height: 44px; border-radius: 50%; border: none; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all .15s; flex-shrink: 0; }
-  .send-btn.on { background: var(--primary); color: #fff; }
-  .send-btn.off { background: var(--border); color: var(--sub); }
+  /* INPUT */
+  .inp-area { padding: 10px 12px; background: var(--white); border-top: 1px solid var(--border); flex-shrink: 0; }
+  .opts { display: flex; flex-wrap: wrap; gap: 7px; }
+  .opt-btn { padding: 8px 13px; border: 1.5px solid var(--border); border-radius: 20px; font-size: 13px; background: var(--bg); color: var(--text); font-weight: 500; transition: all .15s; }
+  .opt-btn.sel { background: var(--red); color: var(--white); border-color: var(--red); }
+  .multi-ok { margin-top: 8px; background: var(--red); color: var(--white); border: none; border-radius: 8px; padding: 11px; font-size: 14px; font-weight: 700; width: 100%; }
+  .txt-row { display: flex; gap: 8px; align-items: center; }
+  .txt-in { flex: 1; background: var(--bg); border: 1.5px solid var(--border); border-radius: 24px; padding: 11px 16px; font-size: 15px; outline: none; color: var(--text); }
+  .send-btn { width: 44px; height: 44px; border-radius: 50%; border: none; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .send-on { background: var(--red); color: var(--white); }
+  .send-off { background: var(--border); color: var(--sub); }
 
-  /* ===== COMPLETE ===== */
-  .complete-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; gap: 14px; text-align: center; }
+  /* COMPLETE */
+  .complete-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; gap: 14px; text-align: center; background: var(--bg); }
+  .complete-icon { width: 80px; height: 80px; background: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; }
 
-  /* ===== ADMIN LIST ===== */
-  .admin-list-wrap { flex: 1; overflow-y: auto; }
+  /* ===== ADMIN ===== */
+  .admin-wrap { flex: 1; overflow-y: auto; }
   .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; padding: 12px; }
-  .stat-card { background: var(--bg); border-radius: 10px; padding: 10px; text-align: center; border: 1.5px solid transparent; cursor: pointer; transition: all .15s; }
-  .stat-card.active-filter { border-color: var(--primary); background: #eef0f8; }
-  .stat-val { font-size: 22px; font-weight: 700; color: var(--primary); }
-  .stat-lbl { font-size: 10px; color: var(--sub); margin-top: 2px; }
-  .search-wrap { padding: 0 12px 10px; }
-  .search-input { width: 100%; padding: 9px 14px 9px 36px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 13px; background: var(--bg); outline: none; }
-  .search-icon-wrap { position: relative; }
-  .search-icon-wrap::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; pointer-events: none; }
-  .cust-row { padding: 12px 14px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .1s; display: flex; align-items: center; gap: 10px; }
+  .stat-c { background: var(--bg); border-radius: 8px; padding: 10px 6px; text-align: center; border: 1.5px solid transparent; cursor: pointer; transition: all .15s; }
+  .stat-c.af { border-color: var(--red); background: #fff5f3; }
+  .stat-v { font-size: 22px; font-weight: 900; color: var(--red); }
+  .stat-l { font-size: 10px; color: var(--sub); margin-top: 2px; }
+  .search-wrap { padding: 0 12px 10px; position: relative; }
+  .search-wrap::before { content: '🔍'; position: absolute; left: 22px; top: 50%; transform: translateY(-50%); font-size: 13px; pointer-events: none; }
+  .search-in { width: 100%; padding: 9px 14px 9px 36px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; background: var(--bg); outline: none; }
+  .cust-row { padding: 12px 14px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background .1s; }
   .cust-row:active { background: var(--bg); }
-  .cust-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
-  .cust-name { font-size: 14px; font-weight: 600; color: var(--primary); }
-  .cust-sub { font-size: 11px; color: var(--sub); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+  .cust-av { width: 38px; height: 38px; border-radius: 50%; background: var(--red); color: var(--white); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; flex-shrink: 0; }
+  .cust-name { font-size: 14px; font-weight: 700; color: var(--primary); }
+  .cust-sub { font-size: 11px; color: var(--sub); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
   .cust-right { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge-pending { background: #fef3c7; color: #92400e; }
-  .badge-active { background: #dbeafe; color: #1e40af; }
-  .badge-applied { background: #d1fae5; color: #065f46; }
-  .badge-closed { background: #f3f4f6; color: #6b7280; }
-  .score-chip { font-size: 12px; font-weight: 700; }
-  .empty-state { padding: 48px 24px; text-align: center; color: var(--sub); font-size: 14px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .bp { background: #fef3c7; color: #92400e; }
+  .ba { background: #dbeafe; color: #1e40af; }
+  .bap { background: #d1fae5; color: #065f46; }
+  .bc { background: #f3f4f6; color: #6b7280; }
+  .score-c { font-size: 12px; font-weight: 700; }
+  .empty-s { padding: 48px 24px; text-align: center; color: var(--sub); font-size: 14px; }
 
-  /* ===== ADMIN DETAIL ===== */
+  /* DETAIL */
   .detail-wrap { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
-  .back-btn { background: none; border: none; color: var(--sub); font-size: 13px; padding: 0; align-self: flex-start; }
-  .detail-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
-  .detail-card-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+  .back-b { background: none; border: none; color: var(--sub); font-size: 13px; padding: 0; align-self: flex-start; }
+  .dc { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+  .dc-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
   .status-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-  .status-btn { padding: 5px 12px; border-radius: 20px; border: 1.5px solid transparent; font-size: 12px; font-weight: 600; cursor: pointer; opacity: .4; transition: all .15s; }
-  .status-btn.active { opacity: 1; }
-  .priority-item { display: flex; align-items: flex-start; gap: 8px; padding: 9px 10px; background: var(--bg); border-radius: 8px; margin-bottom: 6px; }
-  .p-num { width: 20px; height: 20px; border-radius: 50%; background: var(--primary); color: var(--accent); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .p-text { font-size: 13px; color: var(--text); line-height: 1.5; }
-  .need-item { padding: 9px 10px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; font-size: 13px; line-height: 1.5; margin-bottom: 6px; color: var(--text); }
-  .proposal-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 14px; font-size: 13px; line-height: 1.8; color: var(--text); }
+  .st-btn { padding: 5px 12px; border-radius: 20px; border: 1.5px solid transparent; font-size: 12px; font-weight: 700; opacity: .4; transition: all .15s; }
+  .st-btn.on { opacity: 1; }
+  .pri-item { display: flex; align-items: flex-start; gap: 8px; padding: 9px 10px; background: var(--bg); border-radius: 8px; margin-bottom: 6px; }
+  .p-num { width: 20px; height: 20px; border-radius: 50%; background: var(--red); color: var(--white); font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .need-item { padding: 9px 10px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; font-size: 13px; line-height: 1.5; margin-bottom: 6px; }
+  .prop-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 14px; font-size: 13px; line-height: 1.8; }
   .ans-item { padding: 9px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
-  .ans-q { font-size: 12px; color: var(--sub); flex-shrink: 0; max-width: 120px; }
-  .ans-a { font-size: 13px; font-weight: 600; color: var(--primary); text-align: right; }
-  .score-bar-wrap { margin: 10px 0 4px; }
+  .ans-q { font-size: 12px; color: var(--sub); flex-shrink: 0; max-width: 110px; }
+  .ans-a { font-size: 13px; font-weight: 700; color: var(--primary); text-align: right; }
+  .score-wrap { margin: 8px 0 4px; }
   .score-track { height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; margin-bottom: 4px; }
-  .score-fill { height: 100%; border-radius: 4px; transition: width .5s ease; }
-  .score-nums { display: flex; justify-content: space-between; align-items: baseline; }
+  .score-fill { height: 100%; border-radius: 4px; }
 
-  /* ===== SETTINGS ===== */
+  /* SETTINGS */
   .settings-wrap { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
-  .settings-section { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
-  .settings-label { font-size: 12px; color: var(--sub); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
-  .settings-input { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 14px; outline: none; color: var(--text); background: var(--bg); }
-  .settings-input:focus { border-color: var(--primary); }
-  .save-btn { background: var(--primary); color: #fff; border: none; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; width: 100%; margin-top: 4px; }
-  .settings-note { font-size: 12px; color: var(--sub); line-height: 1.6; }
+  .set-sec { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+  .set-lbl { font-size: 11px; color: var(--sub); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+  .set-in { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; color: var(--text); background: var(--bg); margin-bottom: 8px; }
+  .set-in:focus { border-color: var(--red); }
+  .set-note { font-size: 11px; color: var(--sub); line-height: 1.7; margin-bottom: 10px; }
+  .set-btn { background: var(--red); color: var(--white); border: none; border-radius: 8px; padding: 11px; font-size: 14px; font-weight: 700; width: 100%; }
+  .set-ok { display: none; text-align: center; color: var(--success); font-size: 13px; font-weight: 700; margin-top: 8px; }
+  .logout-btn { width: 100%; padding: 11px; border: 1.5px solid var(--sub); border-radius: 8px; background: none; color: var(--sub); font-size: 14px; font-weight: 700; }
+
+  /* BOTTOM NAV */
+  .bnav { display: flex; background: var(--white); border-top: 1px solid var(--border); flex-shrink: 0; }
+  .bnav-btn { flex: 1; padding: 10px 4px; border: none; background: none; font-size: 11px; color: var(--sub); display: flex; flex-direction: column; align-items: center; gap: 2px; transition: color .15s; }
+  .bnav-btn.active { color: var(--red); font-weight: 700; }
+  .bnav-btn span:first-child { font-size: 18px; }
+
+  /* LOADING */
+  .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,.85); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 999; display: none; }
+  .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--red); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 13px; color: var(--sub); }
+
+  /* SYNC STATUS */
+  .sync-badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; }
+  .sync-ok { background: #d1fae5; color: #065f46; }
+  .sync-err { background: #fee2e2; color: #991b1b; }
+  .sync-ing { background: #dbeafe; color: #1e40af; }
 </style>
 </head>
 <body>
 <div id="app">
 
+  <!-- LOADING -->
+  <div class="loading-overlay" id="loading">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loading-text">処理中...</div>
+  </div>
+
   <!-- HEADER -->
-  <header class="header">
-    <div class="header-inner">
-      <div class="logo">
-        <span style="font-size:22px">🏠</span>
-        <div>
-          <div class="logo-title">AIお部屋相談</div>
-          <div class="logo-sub"></div>
-        </div>
+  <header class="hdr">
+    <div class="hdr-inner">
+      <div class="hdr-logo">
+        <span class="hdr-mark">AI</span>
+        <span class="hdr-title">お部屋相談</span>
       </div>
-      <div id="progress-badge" class="progress-badge" style="display:none"></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span id="sync-status" class="sync-badge" style="display:none"></span>
+        <button class="hdr-staff-btn" id="staff-toggle-btn" onclick="handleStaffToggle()">スタッフ</button>
+      </div>
     </div>
-    <div class="progress-bar-wrap">
-      <div id="prog-fill" class="progress-bar-fill" style="width:0%"></div>
-    </div>
+    <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:0%"></div></div>
   </header>
 
-  <!-- ===== SCREEN: CHAT ===== -->
-  <div id="screen-chat" class="screen active">
+  <!-- ===== LOGIN ===== -->
+  <div id="screen-login" class="screen">
+    <div class="login-wrap">
+      <div class="login-icon">🔐</div>
+      <div class="login-title">スタッフログイン</div>
+      <div class="login-sub">スタッフ専用のパスワードを<br>入力してください</div>
+      <div class="login-form">
+        <input class="login-input" type="password" id="pw-input" placeholder="パスワード"
+          onkeydown="if(event.key==='Enter')doLogin()">
+        <div class="login-err" id="login-err">パスワードが違います</div>
+        <button class="login-btn" onclick="doLogin()">ログインする</button>
+        <button class="login-back" onclick="goCustomer()">← お客様用画面に戻る</button>
+      </div>
+    </div>
+  </div>
 
-    <!-- Mode Select -->
-    <div id="mode-select" class="mode-wrap">
+  <!-- ===== CUSTOMER: MODE SELECT ===== -->
+  <div id="screen-mode" class="screen active">
+    <div class="mode-wrap">
       <div class="mode-hero">
-        <div style="font-size:44px;margin-bottom:10px">🏠</div>
-        <h1 style="font-size:20px;font-weight:700;color:var(--primary);margin-bottom:6px">理想のお部屋を<br>一緒に探しましょう</h1>
-        <p style="font-size:13px;color:var(--sub)">ヒアリング時間を選んでください</p>
+        <div style="font-size:36px;margin-bottom:8px">🏠</div>
+        <div class="mode-hero-title">AIがお部屋探しを<br>サポートします</div>
+        <div class="mode-hero-sub">QRコードを読み取っていただきありがとうございます。<br>ヒアリング時間をお選びください。</div>
       </div>
       <div class="mode-grid">
-        <button class="mode-card" data-mode="1min" onclick="selectMode(this)">
-          <div class="mode-card-name">クイック</div>
-          <div class="mode-card-time">約1分 ・ 3問</div>
-          <div class="mode-card-desc">お急ぎの方向け</div>
+        <button class="mode-card" data-mode="1min" onclick="selMode(this)">
+          <div class="mode-name">クイック</div>
+          <div class="mode-time">約1分 ・ 3問</div>
+          <div class="mode-desc">お急ぎの方向け</div>
         </button>
-        <button class="mode-card sel" data-mode="2min" onclick="selectMode(this)">
-          <div class="mode-card-name">スタンダード</div>
-          <div class="mode-card-time">約2分 ・ 6問</div>
-          <div class="mode-card-desc">一般的な方向け</div>
+        <button class="mode-card sel" data-mode="2min" onclick="selMode(this)">
+          <div class="mode-name">スタンダード</div>
+          <div class="mode-time">約2分 ・ 6問</div>
+          <div class="mode-desc">一般的な方向け</div>
         </button>
-        <button class="mode-card" data-mode="4min" onclick="selectMode(this)">
-          <div class="mode-card-name">ていねい</div>
-          <div class="mode-card-time">約4分 ・ 9問</div>
-          <div class="mode-card-desc">じっくり探したい方</div>
+        <button class="mode-card" data-mode="4min" onclick="selMode(this)">
+          <div class="mode-name">ていねい</div>
+          <div class="mode-time">約4分 ・ 9問</div>
+          <div class="mode-desc">じっくり探したい方</div>
         </button>
-        <button class="mode-card" data-mode="7min" onclick="selectMode(this)">
-          <div class="mode-card-name">しっかり</div>
-          <div class="mode-card-time">約7分 ・ 14問</div>
-          <div class="mode-card-desc">こだわりたい方</div>
+        <button class="mode-card" data-mode="7min" onclick="selMode(this)">
+          <div class="mode-name">しっかり</div>
+          <div class="mode-time">約7分 ・ 14問</div>
+          <div class="mode-desc">こだわりたい方</div>
         </button>
       </div>
       <button class="start-btn" onclick="startChat()">ヒアリングを始める →</button>
-      <p style="text-align:center;font-size:11px;color:var(--sub)">入力内容は担当スタッフのみ確認します</p>
+      <p class="privacy-note">🔒 入力内容は担当スタッフのみ確認します</p>
     </div>
+  </div>
 
-    <!-- Chat UI -->
-    <div id="chat-ui" style="display:none;flex-direction:column;flex:1;overflow:hidden">
-      <div id="messages" class="messages"></div>
-      <div id="input-area" class="input-area"></div>
-    </div>
+  <!-- ===== CUSTOMER: CHAT ===== -->
+  <div id="screen-chat" class="screen">
+    <div id="messages" class="messages"></div>
+    <div id="inp-area" class="inp-area"></div>
+  </div>
 
-    <!-- Complete -->
-    <div id="chat-complete" style="display:none" class="complete-wrap">
-      <div style="font-size:56px">✅</div>
-      <div style="font-size:18px;font-weight:700;color:var(--primary)">ヒアリング完了！</div>
-      <div style="font-size:13px;color:var(--sub);line-height:1.8">担当スタッフがAIサマリーを確認し<br>ご連絡いたします。</div>
-      <button class="start-btn" style="margin-top:8px;max-width:280px" onclick="resetChat()">
-        新しいヒアリングを始める
+  <!-- ===== CUSTOMER: COMPLETE ===== -->
+  <div id="screen-complete" class="screen">
+    <div class="complete-wrap">
+      <div class="complete-icon">✅</div>
+      <div style="font-size:20px;font-weight:900;color:var(--primary)">ヒアリング完了！</div>
+      <div style="font-size:13px;color:var(--sub);line-height:1.8">
+        ありがとうございました。<br>
+        担当スタッフがご希望を確認し、<br>
+        最適な物件をご提案いたします。
+      </div>
+      <button class="start-btn" style="max-width:260px;margin-top:8px" onclick="resetChat()">
+        最初に戻る
       </button>
     </div>
   </div>
 
-  <!-- ===== SCREEN: ADMIN ===== -->
+  <!-- ===== ADMIN: LIST ===== -->
   <div id="screen-admin" class="screen">
-
-    <!-- List View -->
     <div id="admin-list-view" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
-      <div class="admin-list-wrap">
+      <div class="admin-wrap">
         <div class="stats-row" id="stats-row"></div>
         <div class="search-wrap">
-          <div class="search-icon-wrap">
-            <input class="search-input" type="text" id="search-input" placeholder="名前・エリアで検索..." oninput="renderList()">
-          </div>
+          <input class="search-in" type="text" id="search-in" placeholder="名前・エリアで検索..." oninput="renderList()">
         </div>
         <div id="cust-list"></div>
       </div>
     </div>
-
-    <!-- Detail View -->
     <div id="admin-detail-view" class="detail-wrap" style="display:none"></div>
   </div>
 
-  <!-- ===== SCREEN: SETTINGS ===== -->
+  <!-- ===== SETTINGS ===== -->
   <div id="screen-settings" class="screen">
     <div class="settings-wrap">
-      <div style="text-align:center;padding:8px 0 4px">
-        <div style="font-size:36px;margin-bottom:8px">⚙️</div>
-        <div style="font-size:16px;font-weight:700;color:var(--primary)">設定</div>
+      <div style="text-align:center;padding:4px 0 8px">
+        <div style="font-size:32px;margin-bottom:6px">⚙️</div>
+        <div style="font-size:16px;font-weight:700;color:var(--primary)">スタッフ設定</div>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-label">AIサマリー用APIキー</div>
-        <input class="settings-input" type="password" id="api-key-input" placeholder="sk-ant-..." />
-        <p class="settings-note" style="margin-top:8px">
-          AIサマリー機能（優先順位・隠れニーズ・提案方針）を使うために必要です。<br>
-          <a href="https://console.anthropic.com" target="_blank" style="color:var(--info)">console.anthropic.com</a> で取得できます。<br>
-          入力したキーはこのスマホ内にのみ保存されます。
+      <!-- STAFF PASSWORD -->
+      <div class="set-sec">
+        <div class="set-lbl">スタッフパスワード</div>
+        <input class="set-in" type="password" id="set-pw" placeholder="新しいパスワードを入力">
+        <p class="set-note">管理画面に入るためのパスワードです。<br>初期値は <strong>1234</strong> です。必ず変更してください。</p>
+        <button class="set-btn" onclick="savePw()">パスワードを変更</button>
+        <div class="set-ok" id="pw-ok">✅ 変更しました！</div>
+      </div>
+
+      <!-- JSONBIN -->
+      <div class="set-sec">
+        <div class="set-lbl">クラウド同期（別のスマホと共有）</div>
+        <p class="set-note">
+          <strong>お客さんのデータを複数のスマホで共有するための設定です。</strong><br>
+          JSONBin（無料）を使います。<br><br>
+          ① <a href="https://jsonbin.io" target="_blank" style="color:var(--red)">jsonbin.io</a> で無料登録<br>
+          ② ログイン後「API Keys」から<br>　 「X-Master-Key」をコピー<br>
+          ③ 下に貼り付けて「保存」を押す
         </p>
-        <button class="save-btn" onclick="saveApiKey()">保存する</button>
-        <div id="key-saved-msg" style="display:none;text-align:center;color:var(--success);font-size:13px;margin-top:8px;font-weight:600">✅ 保存しました！</div>
+        <input class="set-in" type="password" id="set-jkey" placeholder="$2a$10$... (Master Key)">
+        <input class="set-in" type="text" id="set-jbin" placeholder="Bin ID（保存後に自動で入力されます）" readonly style="background:#f9f9f9;color:var(--sub)">
+        <button class="set-btn" onclick="saveCloud()">保存してクラウドに接続</button>
+        <div class="set-ok" id="cloud-ok"></div>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-label">アプリについて</div>
-        <p class="settings-note">
-          このアプリは不動産賃貸向けのAIヒアリングツールです。<br>
-          顧客データはこの端末のブラウザに保存されます。<br><br>
-          <strong>バージョン:</strong> 1.0.0
-        </p>
+      <!-- AI SUMMARY -->
+      <div class="set-sec">
+        <div class="set-lbl">AIサマリー用キー（任意）</div>
+        <input class="set-in" type="password" id="set-akey" placeholder="sk-ant-...">
+        <p class="set-note">入力するとヒアリング完了後にAIが<br>優先順位・隠れニーズ・提案方針を自動生成します。<br>なくてもアプリは使えます。</p>
+        <button class="set-btn" onclick="saveAiKey()">保存する</button>
+        <div class="set-ok" id="ai-ok">✅ 保存しました！</div>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-label">データ管理</div>
-        <button onclick="clearAllData()" style="width:100%;padding:11px;border:1.5px solid #ef4444;border-radius:10px;background:none;color:#ef4444;font-size:14px;font-weight:600;cursor:pointer">
-          全データを削除する
-        </button>
-        <p class="settings-note" style="margin-top:8px">削除すると元に戻せません。ご注意ください。</p>
-      </div>
+      <button class="logout-btn" onclick="doLogout()">ログアウト</button>
     </div>
   </div>
 
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
-    <button class="active" id="nav-chat" onclick="switchScreen('chat')">
-      <span>💬</span>
-      <span>ヒアリング</span>
+  <!-- BOTTOM NAV (staff only) -->
+  <nav class="bnav" id="staff-nav" style="display:none">
+    <button class="bnav-btn active" id="nav-admin" onclick="switchAdmin('list')">
+      <span>📋</span><span>顧客一覧</span>
     </button>
-    <button id="nav-admin" onclick="switchScreen('admin')">
-      <span>📋</span>
-      <span>管理画面</span>
-    </button>
-    <button id="nav-settings" onclick="switchScreen('settings')">
-      <span>⚙️</span>
-      <span>設定</span>
+    <button class="bnav-btn" id="nav-settings" onclick="switchAdmin('settings')">
+      <span>⚙️</span><span>設定</span>
     </button>
   </nav>
+
 </div>
 
 <script>
 // ===== QUESTIONS =====
-const QUESTIONS = {
-  "1min": [
+const QS = {
+  "1min":[
     {id:"name",text:"はじめまして！お名前を教えていただけますか？",type:"text",ph:"例：山田 太郎"},
-    {id:"budget",text:"ご希望の家賃の上限はどのくらいですか？",type:"select",opts:["5万円以下","5〜7万円","7〜10万円","10〜15万円","15万円以上"]},
+    {id:"budget",text:"ご希望の家賃の上限はどのくらいですか？",type:"sel",opts:["5万円以下","5〜7万円","7〜10万円","10〜15万円","15万円以上"]},
     {id:"location",text:"希望のエリアや沿線を教えてください。",type:"text",ph:"例：渋谷区、東横線沿い"}
   ],
-  "2min": [
+  "2min":[
     {id:"name",text:"はじめまして！お名前を教えていただけますか？",type:"text",ph:"例：山田 太郎"},
-    {id:"budget",text:"ご希望の家賃の上限はどのくらいですか？",type:"select",opts:["5万円以下","5〜7万円","7〜10万円","10〜15万円","15万円以上"]},
+    {id:"budget",text:"ご希望の家賃の上限はどのくらいですか？",type:"sel",opts:["5万円以下","5〜7万円","7〜10万円","10〜15万円","15万円以上"]},
     {id:"location",text:"希望のエリアや沿線を教えてください。",type:"text",ph:"例：渋谷区、東横線沿い"},
-    {id:"roomType",text:"希望の間取りを教えてください。",type:"select",opts:["1R/1K","1DK/1LDK","2DK/2LDK","3LDK以上","こだわらない"]},
-    {id:"moveInDate",text:"入居を希望する時期はいつ頃ですか？",type:"select",opts:["すぐにでも","1ヶ月以内","2〜3ヶ月以内","半年以内","まだ検討中"]},
-    {id:"priority",text:"お部屋探しで一番大切にしていることは何ですか？",type:"select",opts:["家賃の安さ","広さ・間取り","立地・利便性","築年数・設備","日当たり・環境"]}
+    {id:"roomType",text:"希望の間取りを教えてください。",type:"sel",opts:["1R/1K","1DK/1LDK","2DK/2LDK","3LDK以上","こだわらない"]},
+    {id:"moveIn",text:"入居を希望する時期はいつ頃ですか？",type:"sel",opts:["すぐにでも","1ヶ月以内","2〜3ヶ月以内","半年以内","まだ検討中"]},
+    {id:"priority",text:"お部屋探しで一番大切にしていることは何ですか？",type:"sel",opts:["家賃の安さ","広さ・間取り","立地・利便性","築年数・設備","日当たり・環境"]}
   ],
-  "4min": [
+  "4min":[
     {id:"name",text:"はじめまして！お名前を教えていただけますか？",type:"text",ph:"例：山田 太郎"},
-    {id:"budget",text:"ご希望の家賃の上限はどのくらいですか？",type:"select",opts:["5万円以下","5〜7万円","7〜10万円","10〜15万円","15万円以上"]},
+    {id:"budget",text:"ご希望の家賃の上限はどのくらいですか？",type:"sel",opts:["5万円以下","5〜7万円","7〜10万円","10〜15万円","15万円以上"]},
     {id:"location",text:"希望のエリアや沿線を教えてください。",type:"text",ph:"例：渋谷区、東横線沿い"},
-    {id:"roomType",text:"希望の間取りを教えてください。",type:"select",opts:["1R/1K","1DK/1LDK","2DK/2LDK","3LDK以上","こだわらない"]},
-    {id:"moveInDate",text:"入居を希望する時期はいつ頃ですか？",type:"select",opts:["すぐにでも","1ヶ月以内","2〜3ヶ月以内","半年以内","まだ検討中"]},
-    {id:"priority",text:"お部屋探しで一番大切にしていることは何ですか？",type:"select",opts:["家賃の安さ","広さ・間取り","立地・利便性","築年数・設備","日当たり・環境"]},
-    {id:"commute",text:"通勤・通学先はどちらですか？（希望の所要時間も）",type:"text",ph:"例：新宿駅まで30分以内"},
-    {id:"lifestyle",text:"生活スタイルを教えてください。",type:"select",opts:["在宅勤務が多い","外出が多い","趣味に時間を使う","家族と過ごす時間を大切に"]},
-    {id:"pets",text:"ペットの飼育をご希望ですか？",type:"select",opts:["はい、飼育したい","いいえ、不要","将来的に検討"]}
+    {id:"roomType",text:"希望の間取りを教えてください。",type:"sel",opts:["1R/1K","1DK/1LDK","2DK/2LDK","3LDK以上","こだわらない"]},
+    {id:"moveIn",text:"入居を希望する時期はいつ頃ですか？",type:"sel",opts:["すぐにでも","1ヶ月以内","2〜3ヶ月以内","半年以内","まだ検討中"]},
+    {id:"priority",text:"お部屋探しで一番大切にしていることは何ですか？",type:"sel",opts:["家賃の安さ","広さ・間取り","立地・利便性","築年数・設備","日当たり・環境"]},
+    {id:"commute",text:"通勤・通学先はどちらですか？（所要時間も）",type:"text",ph:"例：新宿駅まで30分以内"},
+    {id:"lifestyle",text:"生活スタイルを教えてください。",type:"sel",opts:["在宅勤務が多い","外出が多い","趣味に時間を使う","家族と過ごす時間を大切に"]},
+    {id:"pets",text:"ペットの飼育をご希望ですか？",type:"sel",opts:["はい、飼育したい","いいえ、不要","将来的に検討"]}
   ],
-  "7min": [
+  "7min":[
     {id:"name",text:"はじめまして！お名前を教えていただけますか？",type:"text",ph:"例：山田 太郎"},
-    {id:"budget",text:"ご希望の家賃の上限はどのくらいですか？",type:"select",opts:["5万円以下","5〜7万円","7〜10万円","10〜15万円","15万円以上"]},
+    {id:"budget",text:"ご希望の家賃の上限はどのくらいですか？",type:"sel",opts:["5万円以下","5〜7万円","7〜10万円","10〜15万円","15万円以上"]},
     {id:"location",text:"希望のエリアや沿線を教えてください。",type:"text",ph:"例：渋谷区、東横線沿い"},
-    {id:"roomType",text:"希望の間取りを教えてください。",type:"select",opts:["1R/1K","1DK/1LDK","2DK/2LDK","3LDK以上","こだわらない"]},
-    {id:"moveInDate",text:"入居を希望する時期はいつ頃ですか？",type:"select",opts:["すぐにでも","1ヶ月以内","2〜3ヶ月以内","半年以内","まだ検討中"]},
-    {id:"priority",text:"お部屋探しで一番大切にしていることは何ですか？",type:"select",opts:["家賃の安さ","広さ・間取り","立地・利便性","築年数・設備","日当たり・環境"]},
-    {id:"commute",text:"通勤・通学先はどちらですか？（希望の所要時間も）",type:"text",ph:"例：新宿駅まで30分以内"},
-    {id:"lifestyle",text:"生活スタイルを教えてください。",type:"select",opts:["在宅勤務が多い","外出が多い","趣味に時間を使う","家族と過ごす時間を大切に"]},
-    {id:"pets",text:"ペットの飼育をご希望ですか？",type:"select",opts:["はい、飼育したい","いいえ、不要","将来的に検討"]},
-    {id:"parking",text:"駐車場・駐輪場は必要ですか？",type:"select",opts:["車の駐車場が必要","自転車置き場があれば","バイク置き場も必要","不要"]},
-    {id:"floor",text:"階数のご希望はありますか？",type:"select",opts:["1階希望","2階以上","高層階希望","こだわらない"]},
-    {id:"building",text:"建物の種類はどちらをお好みですか？",type:"select",opts:["マンション（鉄筋）","アパート（木造）","どちらでも","新築のみ"]},
-    {id:"facilities",text:"特にこだわる設備を教えてください。（複数可）",type:"multi",opts:["オートロック","宅配ボックス","独立洗面台","浴室乾燥機","システムキッチン","インターネット無料","南向き","角部屋"]},
-    {id:"concerns",text:"お部屋探しで不安なことがあれば教えてください。",type:"text",ph:"例：引越しが初めて、ペットがいるなど"}
+    {id:"roomType",text:"希望の間取りを教えてください。",type:"sel",opts:["1R/1K","1DK/1LDK","2DK/2LDK","3LDK以上","こだわらない"]},
+    {id:"moveIn",text:"入居を希望する時期はいつ頃ですか？",type:"sel",opts:["すぐにでも","1ヶ月以内","2〜3ヶ月以内","半年以内","まだ検討中"]},
+    {id:"priority",text:"お部屋探しで一番大切にしていることは何ですか？",type:"sel",opts:["家賃の安さ","広さ・間取り","立地・利便性","築年数・設備","日当たり・環境"]},
+    {id:"commute",text:"通勤・通学先はどちらですか？（所要時間も）",type:"text",ph:"例：新宿駅まで30分以内"},
+    {id:"lifestyle",text:"生活スタイルを教えてください。",type:"sel",opts:["在宅勤務が多い","外出が多い","趣味に時間を使う","家族と過ごす時間を大切に"]},
+    {id:"pets",text:"ペットの飼育をご希望ですか？",type:"sel",opts:["はい、飼育したい","いいえ、不要","将来的に検討"]},
+    {id:"parking",text:"駐車場・駐輪場は必要ですか？",type:"sel",opts:["車の駐車場が必要","自転車置き場があれば","バイク置き場も必要","不要"]},
+    {id:"floor",text:"階数のご希望はありますか？",type:"sel",opts:["1階希望","2階以上","高層階希望","こだわらない"]},
+    {id:"building",text:"建物の種類はどちらをお好みですか？",type:"sel",opts:["マンション（鉄筋）","アパート（木造）","どちらでも","新築のみ"]},
+    {id:"facilities",text:"こだわる設備を選んでください。（複数可）",type:"multi",opts:["オートロック","宅配ボックス","独立洗面台","浴室乾燥機","システムキッチン","インターネット無料","南向き","角部屋"]},
+    {id:"concerns",text:"お部屋探しで不安なことがあれば教えてください。",type:"text",ph:"例：初めての一人暮らし、ペットがいるなど"}
   ]
 };
 
 // ===== STATE =====
-let curMode = "2min";
-let curQIdx = 0;
-let answers = {};
-let questions = [];
-let multiSel = [];
-let statusFilter = "";
+let curMode="2min", curQIdx=0, answers={}, questions=[], multiSel=[];
+let isStaff=false, statusFilter="";
 
-function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-function now(){ return new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}); }
+// ===== HELPERS =====
+function gid(id){return document.getElementById(id);}
+function nowStr(){return new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});}
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function showLoad(t="処理中..."){gid('loading').style.display='flex';gid('loading-text').textContent=t;}
+function hideLoad(){gid('loading').style.display='none';}
 
-// ===== STORAGE =====
-function getCustomers(){
-  try{ return JSON.parse(localStorage.getItem('re_customers')||'[]'); }catch(e){return [];}
+// ===== LOCAL STORAGE =====
+function getLs(k,def=null){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch(e){return def;}}
+function setLs(k,v){localStorage.setItem(k,JSON.stringify(v));}
+function getPw(){return getLs('re_pw','1234');}
+function getJKey(){return localStorage.getItem('re_jkey')||'';}
+function getJBin(){return localStorage.getItem('re_jbin')||'';}
+function getAiKey(){return localStorage.getItem('re_akey')||'';}
+function getLocalCustomers(){return getLs('re_customers',[]);}
+function setLocalCustomers(list){setLs('re_customers',list);}
+
+// ===== JSONBIN API =====
+const JB_BASE='https://api.jsonbin.io/v3';
+
+async function jbGet(){
+  const key=getJKey(), bin=getJBin();
+  if(!key||!bin) return null;
+  try{
+    const r=await fetch(`${JB_BASE}/b/${bin}/latest`,{headers:{'X-Master-Key':key,'X-Bin-Meta':false}});
+    if(!r.ok) return null;
+    const d=await r.json();
+    return Array.isArray(d)?d:(d.customers||[]);
+  }catch(e){return null;}
 }
-function saveCustomers(list){ localStorage.setItem('re_customers', JSON.stringify(list)); }
-function getApiKey(){ return localStorage.getItem('re_api_key')||''; }
-function saveApiKey(){
-  const v = document.getElementById('api-key-input').value.trim();
-  localStorage.setItem('re_api_key', v);
-  const msg = document.getElementById('key-saved-msg');
-  msg.style.display = 'block';
-  setTimeout(()=>msg.style.display='none', 2000);
+
+async function jbSet(customers){
+  const key=getJKey(), bin=getJBin();
+  if(!key||!bin) return false;
+  try{
+    const r=await fetch(`${JB_BASE}/b/${bin}`,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':key},
+      body:JSON.stringify({customers})
+    });
+    return r.ok;
+  }catch(e){return false;}
 }
 
-// ===== SCREEN SWITCH =====
-function switchScreen(name){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
-  document.getElementById('screen-'+name).classList.add('active');
-  document.getElementById('nav-'+name).classList.add('active');
-  if(name==='admin'){ renderList(); }
-  if(name==='settings'){
-    const k = getApiKey();
-    if(k) document.getElementById('api-key-input').value = k;
+async function jbCreate(key){
+  try{
+    const r=await fetch(`${JB_BASE}/b`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Master-Key':key,'X-Bin-Name':'re-customers','X-Bin-Private':true},
+      body:JSON.stringify({customers:[]})
+    });
+    if(!r.ok) return null;
+    const d=await r.json();
+    return d.metadata?.id||null;
+  }catch(e){return null;}
+}
+
+async function getCustomers(){
+  if(getJKey()&&getJBin()){
+    const remote=await jbGet();
+    if(remote!==null){
+      setLocalCustomers(remote);
+      return remote;
+    }
+  }
+  return getLocalCustomers();
+}
+
+async function saveCustomer(c){
+  let list=getLocalCustomers();
+  const idx=list.findIndex(x=>x.id===c.id);
+  if(idx>=0) list[idx]=c; else list.unshift(c);
+  setLocalCustomers(list);
+  if(getJKey()&&getJBin()){
+    setSyncStatus('ing');
+    const ok=await jbSet(list);
+    setSyncStatus(ok?'ok':'err');
   }
 }
 
+function setSyncStatus(s){
+  const el=gid('sync-status');
+  if(!getJKey()){el.style.display='none';return;}
+  el.style.display='inline';
+  if(s==='ok'){el.className='sync-badge sync-ok';el.textContent='同期済';}
+  else if(s==='err'){el.className='sync-badge sync-err';el.textContent='同期エラー';}
+  else{el.className='sync-badge sync-ing';el.textContent='同期中...';}
+}
+
+// ===== AUTH =====
+function handleStaffToggle(){
+  if(isStaff){doLogout();}
+  else{showScreen('login');}
+}
+
+function doLogin(){
+  const pw=gid('pw-input').value;
+  if(pw===getPw()){
+    isStaff=true;
+    gid('pw-input').value='';
+    gid('login-err').style.display='none';
+    gid('staff-toggle-btn').textContent='ログアウト';
+    gid('staff-nav').style.display='flex';
+    if(getJKey()) setSyncStatus('ok');
+    switchAdmin('list');
+  }else{
+    gid('login-err').style.display='block';
+    gid('pw-input').value='';
+    gid('pw-input').focus();
+  }
+}
+
+function doLogout(){
+  isStaff=false;
+  gid('staff-toggle-btn').textContent='スタッフ';
+  gid('staff-nav').style.display='none';
+  gid('sync-status').style.display='none';
+  goCustomer();
+}
+
+function goCustomer(){showScreen('mode');}
+
+// ===== SCREEN =====
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  gid('screen-'+name).classList.add('active');
+  gid('prog').style.width='0%';
+  gid('progress-badge') && (gid('progress-badge').style&&(gid('progress-badge').style.display='none'));
+}
+
+function switchAdmin(view){
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+  if(view==='list'){
+    showScreen('admin');
+    gid('nav-admin').classList.add('active');
+    gid('admin-list-view').style.display='flex';
+    gid('admin-detail-view').style.display='none';
+    renderList();
+  }else{
+    showScreen('settings');
+    gid('nav-settings').classList.add('active');
+    loadSettings();
+  }
+}
+
+function loadSettings(){
+  const k=getJKey(); if(k) gid('set-jkey').value=k;
+  const b=getJBin(); if(b) gid('set-jbin').value=b;
+  const a=getAiKey(); if(a) gid('set-akey').value=a;
+}
+
+// ===== SETTINGS SAVE =====
+function savePw(){
+  const v=gid('set-pw').value.trim();
+  if(!v){alert('パスワードを入力してください');return;}
+  setLs('re_pw',v);
+  gid('set-pw').value='';
+  showOk('pw-ok');
+}
+
+async function saveCloud(){
+  const key=gid('set-jkey').value.trim();
+  if(!key){alert('Master Keyを入力してください');return;}
+  showLoad('クラウドに接続中...');
+  let binId=getJBin();
+  if(!binId){
+    binId=await jbCreate(key);
+    if(!binId){hideLoad();gid('cloud-ok').style.display='block';gid('cloud-ok').style.color='#e8380d';gid('cloud-ok').textContent='❌ 接続失敗。Master Keyを確認してください';return;}
+  }
+  localStorage.setItem('re_jkey',key);
+  localStorage.setItem('re_jbin',binId);
+  gid('set-jbin').value=binId;
+  const local=getLocalCustomers();
+  if(local.length>0) await jbSet(local);
+  hideLoad();
+  gid('cloud-ok').style.display='block';
+  gid('cloud-ok').style.color='#059669';
+  gid('cloud-ok').textContent='✅ クラウド接続完了！別のスマホでも共有できます';
+  setSyncStatus('ok');
+}
+
+function saveAiKey(){
+  const v=gid('set-akey').value.trim();
+  localStorage.setItem('re_akey',v);
+  showOk('ai-ok');
+}
+
+function showOk(id){
+  const el=gid(id);
+  el.style.display='block';
+  setTimeout(()=>el.style.display='none',2500);
+}
+
 // ===== MODE SELECT =====
-function selectMode(btn){
-  curMode = btn.dataset.mode;
-  document.querySelectorAll('.mode-card').forEach(c=>{
-    c.classList.remove('sel');
-    c.style.borderColor='';
-  });
+function selMode(btn){
+  curMode=btn.dataset.mode;
+  document.querySelectorAll('.mode-card').forEach(c=>{c.classList.remove('sel');});
   btn.classList.add('sel');
 }
 
 // ===== CHAT =====
 function startChat(){
-  questions = QUESTIONS[curMode];
-  curQIdx = 0; answers = {}; multiSel = [];
-  document.getElementById('mode-select').style.display='none';
-  const chatUI = document.getElementById('chat-ui');
-  chatUI.style.display='flex';
-  document.getElementById('messages').innerHTML='';
-  updateProgress();
+  questions=QS[curMode]; curQIdx=0; answers={}; multiSel=[];
+  showScreen('chat');
+  gid('messages').innerHTML='';
+  updateProg();
   showTyping();
   setTimeout(()=>{
     removeTyping();
-    addAiMsg("こんにちは！AIお部屋相談へようこそ😊\n少しだけ質問させてください。");
-    setTimeout(()=>{ addAiMsg(questions[0].text); renderInput(); }, 700);
-  }, 900);
+    addAi("こんにちは！AIお部屋相談へようこそ😊\nいくつか質問させてください。");
+    setTimeout(()=>{addAi(questions[0].text);renderInp();},700);
+  },900);
 }
 
-function updateProgress(){
-  const pct = Math.round((curQIdx/questions.length)*100);
-  document.getElementById('prog-fill').style.width = pct+'%';
-  const badge = document.getElementById('progress-badge');
-  badge.style.display='block';
-  badge.textContent = (curQIdx+1)+' / '+questions.length;
+function updateProg(){
+  const pct=Math.round((curQIdx/questions.length)*100);
+  gid('prog').style.width=pct+'%';
 }
 
-function addAiMsg(text){
-  const msgs = document.getElementById('messages');
-  const d = document.createElement('div');
-  d.className='msg-row fade-up';
-  d.innerHTML=`<div class="ai-avatar">AI</div><div class="bubble ai">${text.replace(/\n/g,'<br>')}<span class="bubble-time">${now()}</span></div>`;
-  msgs.appendChild(d);
-  msgs.scrollTop=msgs.scrollHeight;
+function addAi(text){
+  const m=gid('messages');
+  const d=document.createElement('div');
+  d.className='msg-row fu';
+  d.innerHTML=`<div class="ai-av">AI</div><div class="bubble ai">${text.replace(/\n/g,'<br>')}<span class="btime">${nowStr()}</span></div>`;
+  m.appendChild(d); m.scrollTop=m.scrollHeight;
 }
-function addUserMsg(text){
-  const msgs = document.getElementById('messages');
-  const d = document.createElement('div');
-  d.className='msg-row user fade-up';
-  d.innerHTML=`<div class="bubble user">${text}<span class="bubble-time">${now()}</span></div>`;
-  msgs.appendChild(d);
-  msgs.scrollTop=msgs.scrollHeight;
+
+function addUser(text){
+  const m=gid('messages');
+  const d=document.createElement('div');
+  d.className='msg-row user fu';
+  d.innerHTML=`<div class="bubble user">${text}<span class="btime">${nowStr()}</span></div>`;
+  m.appendChild(d); m.scrollTop=m.scrollHeight;
 }
+
 function showTyping(){
-  const msgs = document.getElementById('messages');
-  const d = document.createElement('div');
+  const m=gid('messages');
+  const d=document.createElement('div');
   d.id='typing'; d.className='msg-row';
-  d.innerHTML=`<div class="ai-avatar">AI</div><div class="typing-bubble"><span class="dot"></span><span class="dot" style="animation-delay:.15s"></span><span class="dot" style="animation-delay:.3s"></span></div>`;
-  msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight;
+  d.innerHTML=`<div class="ai-av">AI</div><div class="typing-b"><span class="dot"></span><span class="dot" style="animation-delay:.15s"></span><span class="dot" style="animation-delay:.3s"></span></div>`;
+  m.appendChild(d); m.scrollTop=m.scrollHeight;
 }
-function removeTyping(){ const t=document.getElementById('typing'); if(t)t.remove(); }
+function removeTyping(){const t=gid('typing');if(t)t.remove();}
 
-function renderInput(){
-  const area = document.getElementById('input-area');
-  const q = questions[curQIdx];
+function renderInp(){
+  const area=gid('inp-area');
+  const q=questions[curQIdx];
   if(!q) return;
-  if(q.type==='select'){
-    area.innerHTML=`<div class="opts-wrap">${q.opts.map(o=>`<button class="opt-btn" onclick="handleAnswer('${o.replace(/'/g,"\\'")}',this)">${o}</button>`).join('')}</div>`;
-  } else if(q.type==='multi'){
+  if(q.type==='sel'){
+    area.innerHTML=`<div class="opts">${q.opts.map(o=>`<button class="opt-btn" onclick="handleAns('${o.replace(/'/g,"\\'")}',this)">${o}</button>`).join('')}</div>`;
+  }else if(q.type==='multi'){
     multiSel=[];
-    area.innerHTML=`<div class="opts-wrap" id="multi-opts">${q.opts.map(o=>`<button class="opt-btn" onclick="toggleMulti(this,'${o.replace(/'/g,"\\'")}') " data-v="${o}">${o}</button>`).join('')}</div><button class="multi-submit" onclick="submitMulti()">選択して次へ</button>`;
-  } else {
-    area.innerHTML=`<div class="text-row"><input class="text-input" id="ti" type="text" placeholder="${q.ph||'入力してください...'}" onkeydown="if(event.key==='Enter'&&this.value.trim())submitText()"><button class="send-btn off" id="send-btn" onclick="submitText()">→</button></div>`;
-    const ti=document.getElementById('ti');
-    ti.oninput=()=>{ document.getElementById('send-btn').className='send-btn '+(ti.value.trim()?'on':'off'); };
+    area.innerHTML=`<div class="opts" id="mopts">${q.opts.map(o=>`<button class="opt-btn" onclick="togMulti(this,'${o.replace(/'/g,"\\'")}') " data-v="${o}">${o}</button>`).join('')}</div><button class="multi-ok" onclick="subMulti()">選択して次へ</button>`;
+  }else{
+    area.innerHTML=`<div class="txt-row"><input class="txt-in" id="ti" type="text" placeholder="${q.ph||'入力してください...'}" onkeydown="if(event.key==='Enter'&&this.value.trim())subText()"><button class="send-btn send-off" id="sbtn" onclick="subText()">→</button></div>`;
+    const ti=gid('ti');
+    ti.oninput=()=>{gid('sbtn').className='send-btn '+(ti.value.trim()?'send-on':'send-off');};
     setTimeout(()=>ti.focus(),50);
   }
 }
 
-function toggleMulti(btn,val){
-  if(multiSel.includes(val)){
-    multiSel=multiSel.filter(v=>v!==val); btn.classList.remove('sel');
-  } else { multiSel.push(val); btn.classList.add('sel'); }
+function togMulti(btn,val){
+  if(multiSel.includes(val)){multiSel=multiSel.filter(v=>v!==val);btn.classList.remove('sel');}
+  else{multiSel.push(val);btn.classList.add('sel');}
 }
-function submitMulti(){ handleAnswer(multiSel.length?multiSel.join('、'):'こだわらない'); }
-function submitText(){
-  const ti=document.getElementById('ti');
-  if(ti&&ti.value.trim()) handleAnswer(ti.value.trim());
-}
+function subMulti(){handleAns(multiSel.length?multiSel.join('、'):'こだわらない');}
+function subText(){const ti=gid('ti');if(ti&&ti.value.trim())handleAns(ti.value.trim());}
 
-function handleAnswer(val){
+function handleAns(val){
   const q=questions[curQIdx];
   answers[q.id]=val;
-  addUserMsg(val);
-  document.getElementById('input-area').innerHTML='';
-  const nextIdx=curQIdx+1;
-  curQIdx=nextIdx;
-  updateProgress();
-  const reactions=['なるほど！','ありがとうございます👍','承知しました！','参考になります✨','わかりました！'];
-  if(nextIdx>=questions.length){
+  addUser(val);
+  gid('inp-area').innerHTML='';
+  const next=curQIdx+1;
+  curQIdx=next;
+  updateProg();
+  const reacts=['なるほど！','ありがとうございます👍','承知しました！','参考になります✨','わかりました！'];
+  if(next>=questions.length){
     showTyping();
     setTimeout(async()=>{
       removeTyping();
-      addAiMsg('ありがとうございました！\nヒアリングが完了しました✨\n\n担当スタッフからご連絡いたします。');
-      const cid = await finishHearing();
-      document.getElementById('chat-ui').style.display='none';
-      document.getElementById('chat-complete').style.display='flex';
-      document.getElementById('progress-badge').style.display='none';
-      document.getElementById('prog-fill').style.width='100%';
-      generateSummary(cid, {...answers});
+      addAi('ありがとうございました！\nヒアリングが完了しました✨\n\n担当スタッフからご連絡いたします。');
+      const cid=await finishHearing();
+      showScreen('complete');
+      generateSummary(cid,{...answers});
     },1000);
-  } else {
+  }else{
     showTyping();
-    setTimeout(()=>{
-      removeTyping();
-      addAiMsg(reactions[nextIdx%reactions.length]+'\n\n'+questions[nextIdx].text);
-      renderInput();
-    },700);
+    setTimeout(()=>{removeTyping();addAi(reacts[next%reacts.length]+'\n\n'+questions[next].text);renderInp();},700);
   }
 }
 
 async function finishHearing(){
   const cid=genId();
-  const customers=getCustomers();
-  customers.unshift({id:cid,name:answers.name||null,mode:curMode,status:'active',answers:{...answers},summary:null,createdAt:Date.now()});
-  saveCustomers(customers);
+  const c={id:cid,name:answers.name||null,mode:curMode,status:'pending',answers:{...answers},summary:null,createdAt:Date.now()};
+  await saveCustomer(c);
   return cid;
 }
 
-async function generateSummary(cid, ans){
-  const apiKey=getApiKey();
+async function generateSummary(cid,ans){
+  const apiKey=getAiKey();
   if(!apiKey) return;
-  const answersText=Object.entries(ans).map(([k,v])=>`${k}: ${v}`).join('\n');
-  const prompt=`あなたは不動産営業アドバイザーです。以下のヒアリング回答を分析して、営業担当者向けのサマリーをJSON形式のみで返してください。マークダウンや説明文は不要です。\n\n回答:\n${answersText}\n\nJSON:\n{"priorities":["最重要: ...","重要: ...","あれば嬉しい: ..."],"hiddenNeeds":["隠れニーズ1","隠れニーズ2"],"proposal":"提案方針150字","score":75,"overview":"顧客概要2〜3文"}`;
+  const txt=Object.entries(ans).map(([k,v])=>`${k}: ${v}`).join('\n');
+  const prompt=`あなたは不動産営業アドバイザーです。以下のヒアリング回答を分析して、営業担当者向けのサマリーをJSON形式のみで返してください。マークダウンや説明文は不要です。\n\n回答:\n${txt}\n\nJSON:\n{"priorities":["最重要: ...","重要: ...","あれば嬉しい: ..."],"hiddenNeeds":["隠れニーズ1","隠れニーズ2"],"proposal":"提案方針150字","score":75,"overview":"顧客概要2〜3文"}`;
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
       headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
       body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})
     });
-    const data=await res.json();
+    const data=await r.json();
     const text=data.content?.[0]?.text||'';
-    const clean=text.replace(/```json|```/g,'').trim();
-    const parsed=JSON.parse(clean);
-    const customers=getCustomers();
-    const idx=customers.findIndex(c=>c.id===cid);
-    if(idx>=0){ customers[idx].summary=parsed; saveCustomers(customers); }
-  } catch(e){ console.log('summary error',e); }
+    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    const list=getLocalCustomers();
+    const idx=list.findIndex(c=>c.id===cid);
+    if(idx>=0){list[idx].summary=parsed;setLocalCustomers(list);if(getJKey()&&getJBin())await jbSet(list);}
+  }catch(e){console.log('summary err',e);}
 }
 
-function resetChat(){
-  document.getElementById('chat-complete').style.display='none';
-  document.getElementById('chat-ui').style.display='none';
-  document.getElementById('mode-select').style.display='flex';
-  document.getElementById('progress-badge').style.display='none';
-  document.getElementById('prog-fill').style.width='0%';
-  document.getElementById('messages').innerHTML='';
-  answers={}; curQIdx=0;
-}
+function resetChat(){showScreen('mode');}
 
 // ===== ADMIN =====
-const STATUS={pending:{l:'未対応',cls:'badge-pending',color:'#92400e',bg:'#fef3c7'},active:{l:'対応中',cls:'badge-active',color:'#1e40af',bg:'#dbeafe'},applied:{l:'申込済',cls:'badge-applied',color:'#065f46',bg:'#d1fae5'},closed:{l:'クローズ',cls:'badge-closed',color:'#6b7280',bg:'#f3f4f6'}};
-const MODELAB={'1min':'1分','2min':'2分','4min':'4分','7min':'7分'};
+const ST={pending:{l:'未対応',cls:'bp',c:'#d97706',bg:'#fef3c7'},active:{l:'対応中',cls:'ba',c:'#2563eb',bg:'#dbeafe'},applied:{l:'申込済',cls:'bap',c:'#059669',bg:'#d1fae5'},closed:{l:'クローズ',cls:'bc',c:'#6b7280',bg:'#f3f4f6'}};
+const ML={'1min':'1分','2min':'2分','4min':'4分','7min':'7分'};
 
-function renderStats(){
-  const customers=getCustomers();
-  const counts={pending:0,active:0,applied:0,closed:0};
-  customers.forEach(c=>{counts[c.status]=(counts[c.status]||0)+1;});
-  const row=document.getElementById('stats-row');
-  row.innerHTML=`
-    <div class="stat-card ${statusFilter===''?'active-filter':''}" onclick="setFilter('')"><div class="stat-val">${customers.length}</div><div class="stat-lbl">全員</div></div>
-    <div class="stat-card ${statusFilter==='pending'?'active-filter':''}" onclick="setFilter('pending')"><div class="stat-val" style="color:#d97706">${counts.pending}</div><div class="stat-lbl">未対応</div></div>
-    <div class="stat-card ${statusFilter==='active'?'active-filter':''}" onclick="setFilter('active')"><div class="stat-val" style="color:#2563eb">${counts.active}</div><div class="stat-lbl">対応中</div></div>
-    <div class="stat-card ${statusFilter==='applied'?'active-filter':''}" onclick="setFilter('applied')"><div class="stat-val" style="color:#059669">${counts.applied}</div><div class="stat-lbl">申込済</div></div>`;
-}
+async function renderList(){
+  showLoad('データ読み込み中...');
+  const all=await getCustomers();
+  hideLoad();
+  let list=statusFilter?all.filter(c=>c.status===statusFilter):all;
+  const q=(gid('search-in')?.value||'').trim();
+  if(q) list=list.filter(c=>(c.name||'').includes(q)||(c.answers?.location||'').includes(q));
 
-function setFilter(f){ statusFilter=f; renderList(); }
+  // stats
+  const cnt={pending:0,active:0,applied:0,closed:0};
+  all.forEach(c=>{cnt[c.status]=(cnt[c.status]||0)+1;});
+  gid('stats-row').innerHTML=`
+    <div class="stat-c ${statusFilter===''?'af':''}" onclick="setFilter('')"><div class="stat-v">${all.length}</div><div class="stat-l">全員</div></div>
+    <div class="stat-c ${statusFilter==='pending'?'af':''}" onclick="setFilter('pending')"><div class="stat-v" style="color:#d97706">${cnt.pending}</div><div class="stat-l">未対応</div></div>
+    <div class="stat-c ${statusFilter==='active'?'af':''}" onclick="setFilter('active')"><div class="stat-v" style="color:#2563eb">${cnt.active}</div><div class="stat-l">対応中</div></div>
+    <div class="stat-c ${statusFilter==='applied'?'af':''}" onclick="setFilter('applied')"><div class="stat-v" style="color:#059669">${cnt.applied}</div><div class="stat-l">申込済</div></div>`;
 
-function renderList(){
-  renderStats();
-  let customers=getCustomers();
-  if(statusFilter) customers=customers.filter(c=>c.status===statusFilter);
-  const q=(document.getElementById('search-input')?.value||'').trim();
-  if(q) customers=customers.filter(c=>(c.name||'').includes(q)||(c.answers?.location||'').includes(q)||(c.answers?.budget||'').includes(q));
-  const el=document.getElementById('cust-list');
-  if(!customers.length){ el.innerHTML='<div class="empty-state">📋<br>顧客データがありません</div>'; return; }
-  el.innerHTML=customers.map(c=>{
-    const s=STATUS[c.status]||STATUS.pending;
-    const score=c.summary?.score;
-    const sc=score>=70?'#059669':score>=40?'#d97706':'#ef4444';
+  if(!list.length){gid('cust-list').innerHTML='<div class="empty-s">📋<br>顧客データがありません</div>';return;}
+  gid('cust-list').innerHTML=list.map(c=>{
+    const s=ST[c.status]||ST.pending;
+    const sc=c.summary?.score;
+    const scC=sc>=70?'#059669':sc>=40?'#d97706':'#e8380d';
     return `<div class="cust-row" onclick="viewDetail('${c.id}')">
-      <div class="cust-avatar">${(c.name||'?')[0]}</div>
+      <div class="cust-av">${(c.name||'?')[0]}</div>
       <div style="min-width:0">
         <div class="cust-name">${c.name||'（名前未入力）'}</div>
-        <div class="cust-sub">${c.answers?.budget||''} ${c.answers?.location?'・'+c.answers.location:''}</div>
+        <div class="cust-sub">${c.answers?.budget||''}${c.answers?.location?' ・ '+c.answers.location:''}</div>
       </div>
       <div class="cust-right">
-        ${score!=null?`<span class="score-chip" style="color:${sc}">${score}点</span>`:''}
+        ${sc!=null?`<span class="score-c" style="color:${scC}">${sc}点</span>`:''}
         <span class="badge ${s.cls}">${s.l}</span>
       </div>
     </div>`;
   }).join('');
 }
 
-function viewDetail(id){
-  document.getElementById('admin-list-view').style.display='none';
-  const dv=document.getElementById('admin-detail-view');
-  dv.style.display='flex';
-  const customers=getCustomers();
-  const c=customers.find(x=>x.id===id);
-  if(!c){dv.innerHTML='<button class="back-btn" onclick="backToList()">← 戻る</button><p>データが見つかりません</p>';return;}
-  const score=c.summary?.score;
-  const sc=score>=70?'#059669':score>=40?'#d97706':'#ef4444';
-  dv.innerHTML=`
-    <button class="back-btn" onclick="backToList()">← 一覧に戻る</button>
+function setFilter(f){statusFilter=f;renderList();}
 
-    <div class="detail-card">
+async function viewDetail(id){
+  gid('admin-list-view').style.display='none';
+  const dv=gid('admin-detail-view');
+  dv.style.display='flex';
+  showLoad('読み込み中...');
+  const all=await getCustomers();
+  hideLoad();
+  const c=all.find(x=>x.id===id);
+  if(!c){dv.innerHTML='<button class="back-b" onclick="backList()">← 戻る</button><p style="padding:20px;color:var(--sub)">データが見つかりません</p>';return;}
+  const sc=c.summary?.score;
+  const scC=sc>=70?'#059669':sc>=40?'#d97706':'#e8380d';
+  dv.innerHTML=`
+    <button class="back-b" onclick="backList()">← 一覧に戻る</button>
+    <div class="dc">
       <div style="display:flex;align-items:center;gap:10px">
-        <div class="cust-avatar" style="width:44px;height:44px;font-size:16px">${(c.name||'?')[0]}</div>
+        <div class="cust-av" style="width:44px;height:44px;font-size:17px;flex-shrink:0">${(c.name||'?')[0]}</div>
         <div>
-          <div style="font-size:17px;font-weight:700;color:var(--primary)">${c.name||'（名前未入力）'}</div>
-          <div style="font-size:11px;color:var(--sub);margin-top:2px">モード: ${MODELAB[c.mode]} ・ ${new Date(c.createdAt).toLocaleDateString('ja-JP')}</div>
+          <div style="font-size:17px;font-weight:900;color:var(--primary)">${c.name||'（名前未入力）'}</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:2px">${ML[c.mode]||c.mode}モード ・ ${new Date(c.createdAt).toLocaleDateString('ja-JP')}</div>
         </div>
       </div>
-      ${score!=null?`<div class="score-bar-wrap">
-        <div class="score-nums"><span style="font-size:12px;color:var(--sub)">成約スコア</span><span style="font-size:20px;font-weight:700;color:${sc}">${score}点</span></div>
-        <div class="score-track"><div class="score-fill" style="width:${score}%;background:${sc}"></div></div>
-        <div style="font-size:11px;color:var(--sub)">${score>=70?'🟢 高い成約可能性':score>=40?'🟡 通常フォロー推奨':'🔴 追加ヒアリング必要'}</div>
+      ${sc!=null?`<div class="score-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <span style="font-size:12px;color:var(--sub)">成約スコア</span>
+          <span style="font-size:22px;font-weight:900;color:${scC}">${sc}点</span>
+        </div>
+        <div class="score-track"><div class="score-fill" style="width:${sc}%;background:${scC}"></div></div>
+        <div style="font-size:11px;color:var(--sub);margin-top:4px">${sc>=70?'🟢 高い成約可能性':sc>=40?'🟡 通常フォロー推奨':'🔴 追加ヒアリング必要'}</div>
       </div>`:''}
       <div class="status-btns">
-        ${Object.entries(STATUS).map(([k,s])=>`<button class="status-btn ${c.status===k?'active':''}" style="background:${c.status===k?s.bg:'none'};color:${s.color};border-color:${s.color}40" onclick="updateStatus('${id}','${k}')">${s.l}</button>`).join('')}
+        ${Object.entries(ST).map(([k,s])=>`<button class="st-btn ${c.status===k?'on':''}" style="background:${c.status===k?s.bg:'none'};color:${s.c};border-color:${s.c}40" onclick="updStatus('${id}','${k}')">${s.l}</button>`).join('')}
       </div>
     </div>
-
     ${c.summary?`
-    <div class="detail-card">
-      <div class="detail-card-title">📝 顧客概要</div>
-      <p style="font-size:13px;color:var(--text);line-height:1.7;background:var(--bg);padding:10px;border-radius:8px">${c.summary.overview||''}</p>
-    </div>
-    <div class="detail-card">
-      <div class="detail-card-title">🎯 優先順位</div>
-      ${(c.summary.priorities||[]).map((p,i)=>`<div class="priority-item"><div class="p-num">${i+1}</div><div class="p-text">${p}</div></div>`).join('')}
-    </div>
-    <div class="detail-card">
-      <div class="detail-card-title">💡 隠れニーズ</div>
-      ${(c.summary.hiddenNeeds||[]).map(n=>`<div class="need-item">→ ${n}</div>`).join('')}
-    </div>
-    <div class="detail-card">
-      <div class="detail-card-title">🏠 提案方針</div>
-      <div class="proposal-box">${c.summary.proposal||''}</div>
-    </div>
-    `:`<div class="detail-card" style="text-align:center;padding:20px;color:var(--sub)">
-      ${getApiKey()?'🤖 AIサマリー生成中...<br><small style="font-size:11px">しばらくしてから管理画面を開き直してください</small>':'🔑 設定画面でAPIキーを入力すると<br>AIサマリーが自動生成されます'}
+    <div class="dc"><div class="dc-title">📝 顧客概要</div><p style="font-size:13px;line-height:1.7;background:var(--bg);padding:10px;border-radius:8px">${c.summary.overview||''}</p></div>
+    <div class="dc"><div class="dc-title">🎯 優先順位</div>${(c.summary.priorities||[]).map((p,i)=>`<div class="pri-item"><div class="p-num">${i+1}</div><div style="font-size:13px;line-height:1.5">${p}</div></div>`).join('')}</div>
+    <div class="dc"><div class="dc-title">💡 隠れニーズ</div>${(c.summary.hiddenNeeds||[]).map(n=>`<div class="need-item">→ ${n}</div>`).join('')}</div>
+    <div class="dc"><div class="dc-title">🏠 提案方針</div><div class="prop-box">${c.summary.proposal||''}</div></div>
+    `:`<div class="dc" style="text-align:center;padding:20px;color:var(--sub);font-size:13px">
+      ${getAiKey()?'🤖 AIサマリー生成中...<br><small>しばらくしてから更新してください</small>':'🔑 設定からAIキーを入力するとサマリーが生成されます'}
     </div>`}
-
-    <div class="detail-card">
-      <div class="detail-card-title">💬 回答履歴</div>
-      ${Object.entries(c.answers||{}).map(([k,v])=>`<div class="ans-item"><span class="ans-q">${k}</span><span class="ans-a">${v}</span></div>`).join('')}
-    </div>`;
+    <div class="dc"><div class="dc-title">💬 回答履歴</div>${Object.entries(c.answers||{}).map(([k,v])=>`<div class="ans-item"><span class="ans-q">${k}</span><span class="ans-a">${v}</span></div>`).join('')}</div>`;
 }
 
-function updateStatus(id,status){
-  const customers=getCustomers();
-  const idx=customers.findIndex(c=>c.id===id);
-  if(idx>=0){ customers[idx].status=status; saveCustomers(customers); viewDetail(id); }
+async function updStatus(id,status){
+  showLoad('更新中...');
+  const all=await getCustomers();
+  const idx=all.findIndex(c=>c.id===id);
+  if(idx>=0){all[idx].status=status;setLocalCustomers(all);if(getJKey()&&getJBin()){setSyncStatus('ing');const ok=await jbSet(all);setSyncStatus(ok?'ok':'err');}};
+  hideLoad();
+  viewDetail(id);
 }
 
-function backToList(){
-  document.getElementById('admin-list-view').style.display='flex';
-  document.getElementById('admin-detail-view').style.display='none';
+function backList(){
+  gid('admin-list-view').style.display='flex';
+  gid('admin-detail-view').style.display='none';
   renderList();
-}
-
-function clearAllData(){
-  if(confirm('全ての顧客データを削除しますか？\nこの操作は取り消せません。')){
-    localStorage.removeItem('re_customers');
-    renderList();
-    alert('削除しました。');
-  }
 }
 </script>
 </body>
