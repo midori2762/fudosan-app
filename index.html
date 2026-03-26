@@ -5,1170 +5,726 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>お部屋相談</title>
 <style>
-/* ============================================================
-   DESIGN SYSTEM
-   コンセプト: Apple × Tesla × Netflix
-   ダーク・ミニマル・没入感
-============================================================ */
 :root {
-  --bg:        #0a0a0a;
-  --bg2:       #111111;
-  --bg3:       #1a1a1a;
-  --bg4:       #222222;
-  --border:    rgba(255,255,255,0.08);
-  --border2:   rgba(255,255,255,0.15);
-  --text:      #ffffff;
-  --text2:     rgba(255,255,255,0.6);
-  --text3:     rgba(255,255,255,0.35);
-  --accent:    #ffffff;
-  --accent2:   rgba(255,255,255,0.12);
-  --success:   #30d158;
-  --danger:    #ff453a;
-  --warn:      #ffd60a;
-  --radius:    16px;
-  --radius-sm: 10px;
-  --radius-lg: 24px;
-  --ease:      cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-out:  cubic-bezier(0, 0, 0.2, 1);
+  --bg:     #0a0a0a;
+  --bg2:    #111111;
+  --bg3:    #1a1a1a;
+  --bg4:    #222222;
+  --border: rgba(255,255,255,0.09);
+  --bord2:  rgba(255,255,255,0.16);
+  --text:   #ffffff;
+  --text2:  rgba(255,255,255,0.6);
+  --text3:  rgba(255,255,255,0.32);
+  --green:  #30d158;
+  --blue:   #4dabff;
+  --yellow: #ffd60a;
+  --red:    #ff453a;
+  --r:      14px;
+  --rsm:    10px;
 }
-
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-html, body {
-  height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  overflow: hidden;
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{
+  height:100%;
+  font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
 }
+button{cursor:pointer;font-family:inherit;border:none;background:none;}
+input{font-family:inherit;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--bord2);border-radius:2px;}
 
-button { cursor: pointer; font-family: inherit; border: none; background: none; }
-input  { font-family: inherit; }
-a      { color: inherit; }
-
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-
-/* ============================================================
-   APP SHELL
-============================================================ */
-#app {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100dvh;
-  max-width: 430px;
-  margin: 0 auto;
-  background: var(--bg);
-  position: relative;
-  overflow: hidden;
+/* ── APP SHELL ── */
+#app{
+  display:flex;
+  flex-direction:column;
+  height:100dvh;
+  max-width:430px;
+  margin:0 auto;
+  background:var(--bg);
+  overflow:hidden;
 }
 
 /* ── STATUS BAR ── */
-.status-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px 6px;
-  flex-shrink: 0;
+#statusbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 20px 8px;
+  flex-shrink:0;
+  background:var(--bg);
+  z-index:10;
 }
-.status-logo {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: .06em;
-  color: var(--text2);
+.logo{font-size:13px;font-weight:600;letter-spacing:.06em;color:var(--text3);}
+.staff-btn{
+  font-size:12px;color:var(--text3);
+  padding:4px 12px;
+  border:1px solid var(--border);
+  border-radius:20px;
+  transition:all .2s;
 }
-.status-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.staff-btn:hover{color:var(--text2);border-color:var(--bord2);}
+
+/* ── SCREEN ── */
+/* 全スクリーンはデフォルトで非表示 */
+.screen{
+  display:none;
+  flex-direction:column;
+  flex:1;
+  overflow:hidden;
 }
-.staff-btn {
-  font-size: 12px;
-  color: var(--text3);
-  padding: 4px 10px;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  transition: all .2s var(--ease);
+/* activeクラスがついているものだけ表示 */
+.screen.active{display:flex;}
+
+/* ── SCROLL BODY ── */
+.scroll{flex:1;overflow-y:auto;padding:20px 24px 40px;}
+
+/* ── LOADING ── */
+#loading{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;
+  align-items:center;justify-content:center;
+  z-index:9999;
 }
-.staff-btn:hover { border-color: var(--border2); color: var(--text2); }
-.sync-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--success);
-  display: none;
+#loading.show{display:flex;}
+.spinner{
+  width:36px;height:36px;
+  border:2px solid var(--bord2);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:fadeUp .35s ease both;}
+
+/* ── PROGRESS BAR ── */
+#progwrap{height:2px;background:var(--border);flex-shrink:0;}
+#progfill{height:100%;background:#fff;transition:width .4s ease;width:0%;}
+
+/* ── BUTTONS ── */
+.btn-white{
+  background:#fff;color:#000;
+  border-radius:var(--r);
+  padding:16px;font-size:16px;font-weight:600;
+  width:100%;transition:opacity .2s;
+}
+.btn-white:hover{opacity:.88;}
+.btn-white:active{transform:scale(.98);}
+.btn-ghost{
+  background:none;color:var(--text2);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:14px;font-size:15px;font-weight:500;
+  width:100%;transition:all .2s;
+}
+.btn-ghost:hover{border-color:var(--bord2);color:var(--text);}
+.btn-ghost:active{transform:scale(.98);}
+
+/* ── FORM ── */
+.form-group{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;}
+.form-label{font-size:12px;font-weight:500;color:var(--text3);letter-spacing:.08em;}
+.form-label span{color:var(--red);margin-left:3px;}
+.form-input{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--rsm);
+  padding:16px 18px;
+  font-size:16px;color:var(--text);
+  outline:none;width:100%;
+  -webkit-appearance:none;
+  transition:border-color .2s;
+}
+.form-input::placeholder{color:var(--text3);}
+.form-input:focus{border-color:var(--bord2);}
+.form-input.err{border-color:var(--red);}
+.form-err{font-size:12px;color:var(--red);display:none;}
+
+/* ── SECTION LABEL ── */
+.sec-label{
+  font-size:11px;font-weight:600;
+  color:var(--text3);letter-spacing:.14em;
+  text-transform:uppercase;margin-bottom:10px;
+}
+.sec-title{
+  font-size:26px;font-weight:700;
+  letter-spacing:-.02em;line-height:1.3;
+  margin-bottom:24px;
 }
 
-/* ============================================================
-   SCREENS
-============================================================ */
-.screen {
-  display: none;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-  position: absolute;
-  inset: 0;
-  top: 52px;
-}
-.screen.active  { display: flex; }
-.screen.slide-in  { animation: slideIn  .38s var(--ease-out) forwards; }
-.screen.slide-out { animation: slideOut .28s var(--ease) forwards; }
-.screen.slide-back-in  { animation: slideBackIn  .38s var(--ease-out) forwards; }
-.screen.slide-back-out { animation: slideBackOut .28s var(--ease) forwards; }
-
-@keyframes slideIn      { from{opacity:0;transform:translateX(40px)}  to{opacity:1;transform:translateX(0)} }
-@keyframes slideOut     { from{opacity:1;transform:translateX(0)}  to{opacity:0;transform:translateX(-30px)} }
-@keyframes slideBackIn  { from{opacity:0;transform:translateX(-40px)} to{opacity:1;transform:translateX(0)} }
-@keyframes slideBackOut { from{opacity:1;transform:translateX(0)}  to{opacity:0;transform:translateX(30px)} }
-@keyframes fadeIn       { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-@keyframes fadeInFast   { from{opacity:0} to{opacity:1} }
-
-/* ============================================================
-   LOADING OVERLAY
-============================================================ */
-#loading {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.7);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  backdrop-filter: blur(8px);
-}
-.spinner {
-  width: 36px; height: 36px;
-  border: 2px solid var(--border2);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ============================================================
-   PROGRESS BAR
-============================================================ */
-.prog-bar-wrap {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--border);
-}
-.prog-bar-fill {
-  height: 100%;
-  background: #fff;
-  transition: width .5s var(--ease-out);
-  border-radius: 1px;
-}
-
-/* ============================================================
-   SCREEN: WELCOME
-============================================================ */
-#screen-welcome {
-  display: flex;
-  flex-direction: column;
-  padding: 0 28px;
-  justify-content: center;
-  gap: 48px;
-}
-.welcome-heading {
-  animation: fadeIn .6s var(--ease-out) forwards;
-}
-.welcome-eyebrow {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: .18em;
-  color: var(--text3);
-  text-transform: uppercase;
-  margin-bottom: 14px;
-}
-.welcome-title {
-  font-size: 34px;
-  font-weight: 700;
-  line-height: 1.18;
-  letter-spacing: -.02em;
-}
-.welcome-title span { color: var(--text2); }
-.welcome-sub {
-  font-size: 15px;
-  color: var(--text2);
-  margin-top: 12px;
-  line-height: 1.6;
-  font-weight: 300;
-}
-.welcome-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  animation: fadeIn .6s .15s var(--ease-out) both;
-}
-.visit-card {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 22px 24px;
-  text-align: left;
-  transition: all .25s var(--ease);
+/* ── WELCOME ── */
+/* ===== WELCOME SCREEN ===== */
+#s-welcome {
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
-.visit-card::after {
-  content: '→';
+#s-welcome::before {
+  content: '';
   position: absolute;
-  right: 22px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text3);
-  font-size: 18px;
-  transition: all .2s var(--ease);
+  inset: 0;
+  background: url('https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=900&q=80') center center / cover no-repeat;
+  z-index: 0;
 }
-.visit-card:hover { background: var(--bg4); border-color: var(--border2); }
-.visit-card:hover::after { right: 18px; color: var(--text2); }
-.visit-card:active { transform: scale(.98); }
-.visit-card-icon { font-size: 26px; margin-bottom: 10px; }
-.visit-card-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
-.visit-card-desc  { font-size: 13px; color: var(--text2); line-height: 1.5; font-weight: 300; }
-
-/* ============================================================
-   SCREEN: LEVEL
-============================================================ */
-#screen-level {
-  padding: 0 24px;
-  overflow-y: auto;
+#s-welcome::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 47, 35, 0.68);
+  z-index: 1;
 }
-.level-header {
-  padding: 28px 4px 24px;
-  animation: fadeIn .5s var(--ease-out) both;
-}
-.level-label {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: .15em;
-  color: var(--text3);
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-.level-title {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -.02em;
-  line-height: 1.25;
-}
-.level-cards { display: flex; flex-direction: column; gap: 10px; padding-bottom: 28px; }
-.level-card {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  transition: all .2s var(--ease);
-  text-align: left;
-  animation: fadeIn .4s var(--ease-out) both;
-}
-.level-card:nth-child(1) { animation-delay: .05s; }
-.level-card:nth-child(2) { animation-delay: .1s; }
-.level-card:nth-child(3) { animation-delay: .15s; }
-.level-card:nth-child(4) { animation-delay: .2s; }
-.level-card:hover { background: var(--bg4); border-color: var(--border2); }
-.level-card:active { transform: scale(.98); }
-.level-card-num {
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  background: var(--bg4);
-  border: 1px solid var(--border2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  font-weight: 700;
-  flex-shrink: 0;
-  color: var(--text2);
-}
-.level-card-body { flex: 1; }
-.level-card-name { font-size: 16px; font-weight: 600; margin-bottom: 3px; }
-.level-card-meta { font-size: 12px; color: var(--text3); font-weight: 400; }
-.level-card-arrow { color: var(--text3); font-size: 16px; flex-shrink: 0; }
-
-/* ============================================================
-   SCREEN: BASIC INFO
-============================================================ */
-#screen-info {
-  padding: 0 24px;
-  overflow-y: auto;
-}
-.info-header {
-  padding: 28px 4px 24px;
-  animation: fadeIn .5s var(--ease-out) both;
-}
-.info-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding-bottom: 32px;
-  animation: fadeIn .5s .1s var(--ease-out) both;
-}
-.form-group { display: flex; flex-direction: column; gap: 7px; }
-.form-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text3);
-  letter-spacing: .08em;
-}
-.form-label span { color: var(--danger); margin-left: 3px; }
-.form-input {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 16px 18px;
-  font-size: 16px;
-  color: var(--text);
-  outline: none;
-  transition: all .2s var(--ease);
-  width: 100%;
-  -webkit-appearance: none;
-}
-.form-input::placeholder { color: var(--text3); }
-.form-input:focus {
-  border-color: rgba(255,255,255,.4);
-  background: var(--bg4);
-}
-.form-input.error { border-color: var(--danger); }
-.form-err { font-size: 12px; color: var(--danger); display: none; margin-top: 2px; }
-.btn-primary {
-  background: #fff;
-  color: #000;
-  border-radius: var(--radius);
-  padding: 17px;
-  font-size: 16px;
-  font-weight: 600;
-  width: 100%;
-  transition: all .2s var(--ease);
-  letter-spacing: .01em;
-}
-.btn-primary:hover { background: rgba(255,255,255,.9); }
-.btn-primary:active { transform: scale(.98); }
-.btn-primary:disabled { background: var(--bg4); color: var(--text3); }
-.btn-ghost {
-  background: none;
-  color: var(--text2);
-  border-radius: var(--radius);
-  padding: 14px;
-  font-size: 15px;
-  font-weight: 500;
-  width: 100%;
-  transition: all .2s var(--ease);
-  border: 1px solid var(--border);
-}
-.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
-.btn-ghost:active { transform: scale(.98); }
-
-/* ============================================================
-   SCREEN: QUESTION
-============================================================ */
-#screen-question {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.q-top {
-  padding: 16px 24px 0;
-  flex-shrink: 0;
-}
-.q-nav {
+.w-header {
+  position: relative;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
-}
-.q-back-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 14px;
-  color: var(--text2);
-  padding: 6px 0;
-  transition: color .2s;
-}
-.q-back-btn:hover { color: var(--text); }
-.q-counter {
-  font-size: 13px;
-  color: var(--text3);
-  font-weight: 500;
-}
-.q-prog {
-  height: 2px;
-  background: var(--border);
-  border-radius: 1px;
-  margin: 10px 0 0;
-  overflow: hidden;
-}
-.q-prog-fill {
-  height: 100%;
-  background: #fff;
-  border-radius: 1px;
-  transition: width .5s var(--ease-out);
-}
-
-.q-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 28px 24px 20px;
-}
-.q-text {
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.35;
-  letter-spacing: -.02em;
-  margin-bottom: 28px;
-  animation: fadeIn .4s var(--ease-out) both;
-}
-.q-cards { display: flex; flex-direction: column; gap: 10px; }
-.q-card {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px 20px;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text);
-  text-align: left;
-  transition: all .2s var(--ease);
-  animation: fadeIn .3s var(--ease-out) both;
-}
-.q-card:nth-child(n) { animation-delay: calc(var(--i,0) * .05s); }
-.q-card:hover { background: var(--bg4); border-color: var(--border2); }
-.q-card:active { transform: scale(.98); }
-.q-card.selected {
-  background: #fff;
-  color: #000;
-  border-color: #fff;
-}
-.q-card-sub { font-size: 12px; color: var(--text3); margin-top: 3px; font-weight: 400; }
-.q-card.selected .q-card-sub { color: rgba(0,0,0,.5); }
-
-/* FREE INPUT in question */
-.q-free-wrap {
-  margin-top: 10px;
-  animation: fadeIn .3s var(--ease-out) both;
-}
-.q-free-input {
-  width: 100%;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  font-size: 16px;
-  color: var(--text);
-  outline: none;
-  transition: all .2s var(--ease);
-  -webkit-appearance: none;
-}
-.q-free-input::placeholder { color: var(--text3); }
-.q-free-input:focus { border-color: var(--border2); background: var(--bg4); }
-.q-free-btn {
-  background: #fff;
-  color: #000;
-  border-radius: var(--radius);
-  padding: 15px;
-  font-size: 15px;
-  font-weight: 600;
-  width: 100%;
-  margin-top: 10px;
-  transition: all .2s var(--ease);
-}
-.q-free-btn:hover { background: rgba(255,255,255,.9); }
-.q-free-btn:active { transform: scale(.98); }
-
-/* ============================================================
-   SCREEN: COMPLETE
-============================================================ */
-#screen-complete {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 28px;
-  text-align: center;
-  gap: 20px;
-}
-.complete-ring {
-  width: 88px; height: 88px;
-  border-radius: 50%;
-  border: 2px solid rgba(48,209,88,.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn .5s var(--ease-out) both;
-}
-.complete-inner {
-  width: 64px; height: 64px;
-  border-radius: 50%;
-  background: rgba(48,209,88,.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-}
-.complete-title {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -.02em;
-  animation: fadeIn .5s .1s var(--ease-out) both;
-}
-.complete-sub {
-  font-size: 15px;
-  color: var(--text2);
-  line-height: 1.7;
-  font-weight: 300;
-  animation: fadeIn .5s .2s var(--ease-out) both;
-}
-.complete-btn {
-  background: var(--bg3);
-  color: var(--text2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 15px 32px;
-  font-size: 15px;
-  font-weight: 500;
-  transition: all .2s var(--ease);
-  animation: fadeIn .5s .3s var(--ease-out) both;
-}
-.complete-btn:hover { border-color: var(--border2); color: var(--text); }
-
-/* ============================================================
-   SCREEN: LOGIN
-============================================================ */
-#screen-login {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 28px;
-  gap: 28px;
-}
-.login-icon {
-  width: 64px; height: 64px;
-  border-radius: 50%;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  animation: fadeIn .5s var(--ease-out) both;
-}
-.login-title {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -.02em;
-  text-align: center;
-  animation: fadeIn .5s .05s var(--ease-out) both;
-}
-.login-sub {
-  font-size: 14px;
-  color: var(--text2);
-  text-align: center;
-  line-height: 1.6;
-  margin-top: -16px;
-  font-weight: 300;
-  animation: fadeIn .5s .1s var(--ease-out) both;
-}
-.login-form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  animation: fadeIn .5s .15s var(--ease-out) both;
-}
-.login-err {
-  color: var(--danger);
-  font-size: 13px;
-  text-align: center;
-  display: none;
-}
-.login-back {
-  font-size: 14px;
-  color: var(--text3);
-  transition: color .2s;
-}
-.login-back:hover { color: var(--text2); }
-
-/* ============================================================
-   SCREEN: ADMIN LIST
-============================================================ */
-#screen-admin {
-  flex-direction: column;
-  overflow: hidden;
-}
-.admin-inner {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 20px;
-}
-.admin-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 0 16px;
-}
-.admin-title {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -.02em;
-}
-.admin-count {
-  font-size: 13px;
-  color: var(--text3);
-}
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4,1fr);
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.stat-box {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px 8px;
-  text-align: center;
-  cursor: pointer;
-  transition: all .2s var(--ease);
-}
-.stat-box.active { border-color: var(--border2); background: var(--bg4); }
-.stat-box:hover  { border-color: var(--border2); }
-.stat-num { font-size: 20px; font-weight: 700; }
-.stat-lbl { font-size: 10px; color: var(--text3); margin-top: 2px; letter-spacing: .04em; }
-.search-box {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 13px 16px 13px 40px;
-  font-size: 14px;
-  color: var(--text);
-  outline: none;
-  width: 100%;
-  transition: all .2s var(--ease);
-  margin-bottom: 14px;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.3)' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: 14px center;
-}
-.search-box:focus { border-color: var(--border2); background-color: var(--bg4); }
-.cust-list { display: flex; flex-direction: column; gap: 8px; }
-.cust-item {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  cursor: pointer;
-  transition: all .2s var(--ease);
-}
-.cust-item:hover { background: var(--bg4); border-color: var(--border2); }
-.cust-item:active { transform: scale(.99); }
-.cust-av {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  background: var(--bg4);
-  border: 1px solid var(--border2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  font-weight: 700;
+  padding: 18px 24px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   flex-shrink: 0;
 }
-.cust-info { flex: 1; min-width: 0; }
-.cust-name { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
-.cust-meta {
-  font-size: 12px;
-  color: var(--text3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.cust-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
-.badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 9px;
-  border-radius: 20px;
-  letter-spacing: .02em;
-}
-.b-pending  { background: rgba(255,214,10,.12);  color: #ffd60a; }
-.b-active   { background: rgba(10,132,255,.12);  color: #4dabff; }
-.b-applied  { background: rgba(48,209,88,.12);   color: #30d158; }
-.b-closed   { background: rgba(255,255,255,.06); color: var(--text3); }
-.score-num  { font-size: 13px; font-weight: 700; }
-.empty-msg  { padding: 60px 0; text-align: center; color: var(--text3); font-size: 14px; }
-
-/* ============================================================
-   SCREEN: ADMIN DETAIL
-============================================================ */
-#screen-detail {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.detail-scroll {
+.w-header-logo { font-size: 16px; font-weight: 500; color: #ffffff; letter-spacing: .03em; }
+.w-gear-btn { background: none; border: none; padding: 4px; cursor: pointer; opacity: .88; transition: opacity .2s; }
+.w-gear-btn:hover { opacity: 1; }
+.w-body {
+  position: relative;
+  z-index: 10;
   flex: 1;
-  overflow-y: auto;
-  padding: 12px 20px 32px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-}
-.detail-back {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 14px;
-  color: var(--text2);
-  padding: 8px 0;
-  align-self: flex-start;
-  transition: color .2s;
-}
-.detail-back:hover { color: var(--text); }
-.detail-hero {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 0 8px;
-}
-.detail-av {
-  width: 52px; height: 52px;
-  border-radius: 50%;
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  display: flex;
-  align-items: center;
   justify-content: center;
-  font-size: 20px;
-  font-weight: 700;
-  flex-shrink: 0;
+  padding: 0 32px;
+  gap: 0;
 }
-.detail-name { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
-.detail-meta { font-size: 12px; color: var(--text3); margin-top: 3px; }
-.dc {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-}
-.dc-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text3);
-  letter-spacing: .1em;
-  text-transform: uppercase;
+.w-by {
+  font-size: 14px;
+  color: #ffffff;
   margin-bottom: 12px;
-}
-.score-row {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
 }
-.score-big { font-size: 36px; font-weight: 700; letter-spacing: -.03em; }
-.score-hint { font-size: 13px; color: var(--text3); }
-.score-track {
-  height: 3px;
-  background: var(--border);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.score-fill { height: 100%; border-radius: 2px; transition: width .8s var(--ease-out); }
-.status-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-.st-pill {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid transparent;
-  opacity: .4;
-  transition: all .2s var(--ease);
-  cursor: pointer;
-}
-.st-pill.on { opacity: 1; }
-.pri-list { display: flex; flex-direction: column; gap: 8px; }
-.pri-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-.pri-n {
-  width: 22px; height: 22px;
+.w-by-icon {
+  width: 20px;
+  height: 20px;
+  background: #2e7d5b;
   border-radius: 50%;
-  background: var(--bg4);
-  border: 1px solid var(--border2);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  font-weight: 700;
   flex-shrink: 0;
-  margin-top: 1px;
 }
-.pri-t { font-size: 14px; line-height: 1.5; color: var(--text2); }
-.need-row {
-  padding: 11px 14px;
-  background: rgba(255,214,10,.05);
-  border: 1px solid rgba(255,214,10,.12);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  color: var(--text2);
-  line-height: 1.6;
-  margin-bottom: 8px;
-}
-.proposal-box {
-  font-size: 14px;
-  color: var(--text2);
-  line-height: 1.8;
-  padding: 14px 16px;
-  background: rgba(10,132,255,.06);
-  border: 1px solid rgba(10,132,255,.15);
-  border-radius: var(--radius-sm);
-}
-.ans-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-  gap: 12px;
-}
-.ans-row:last-child { border-bottom: none; }
-.ans-q { font-size: 12px; color: var(--text3); flex-shrink: 0; max-width: 100px; }
-.ans-a { font-size: 13px; font-weight: 600; text-align: right; color: var(--text); }
-
-/* ============================================================
-   SCREEN: SETTINGS
-============================================================ */
-#screen-settings {
-  flex-direction: column;
-  overflow: hidden;
-}
-.settings-scroll {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px 20px 40px;
-}
-.settings-title {
-  font-size: 22px;
+.w-by-green { color: #5ecea0; font-weight: 600; }
+.w-title {
+  font-size: 30px;
   font-weight: 700;
+  color: #ffffff;
+  line-height: 1.28;
   letter-spacing: -.02em;
-  padding: 16px 0 20px;
+  margin-bottom: 14px;
 }
-.set-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-.set-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text3);
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  padding: 0 4px;
-}
-.set-card {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.set-input {
-  width: 100%;
-  background: var(--bg4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 13px 16px;
-  font-size: 15px;
-  color: var(--text);
-  outline: none;
-  transition: all .2s var(--ease);
-  -webkit-appearance: none;
-}
-.set-input::placeholder { color: var(--text3); }
-.set-input:focus { border-color: var(--border2); }
-.set-input[readonly] { color: var(--text3); }
-.set-note {
-  font-size: 12px;
-  color: var(--text3);
+.w-title-green { color: #5ecea0; }
+.w-sub {
+  font-size: 13px;
+  color: #d0d0d0;
   line-height: 1.7;
+  font-weight: 300;
 }
-.set-note a { color: rgba(255,255,255,.5); text-decoration: underline; }
-.set-btn {
-  background: #fff;
-  color: #000;
-  border-radius: var(--radius-sm);
-  padding: 13px;
-  font-size: 14px;
-  font-weight: 600;
-  width: 100%;
-  transition: all .2s var(--ease);
-}
-.set-btn:hover { background: rgba(255,255,255,.9); }
-.set-btn:active { transform: scale(.98); }
-.set-ok {
-  font-size: 13px;
-  color: var(--success);
-  font-weight: 500;
-  text-align: center;
-  display: none;
-}
-.set-err {
-  font-size: 13px;
-  color: var(--danger);
-  font-weight: 500;
-  text-align: center;
-  display: none;
-}
-.logout-btn {
-  background: none;
-  color: var(--danger);
-  border: 1px solid rgba(255,69,58,.3);
-  border-radius: var(--radius-sm);
-  padding: 13px;
-  font-size: 14px;
-  font-weight: 500;
-  width: 100%;
-  transition: all .2s var(--ease);
-}
-.logout-btn:hover { background: rgba(255,69,58,.06); }
-
-/* ============================================================
-   ADMIN BOTTOM NAV
-============================================================ */
-.admin-nav {
-  display: none;
-  background: rgba(10,10,10,.9);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.admin-nav.visible { display: flex; }
-.admin-nav-btn {
-  flex: 1;
-  padding: 10px 4px;
+.w-buttons {
+  position: relative;
+  z-index: 10;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  color: var(--text3);
-  font-size: 10px;
-  font-weight: 500;
-  transition: color .2s var(--ease);
-  letter-spacing: .04em;
+  gap: 20px;
+  padding: 32px 24px 52px;
 }
-.admin-nav-btn.active { color: #fff; }
-.admin-nav-btn span:first-child { font-size: 20px; }
+.visit-card {
+  width: 100%;
+  height: 90px;
+  background: rgba(31, 95, 58, 0.88);
+  border: 1px solid rgba(94, 206, 160, 0.18);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .22s ease;
+}
+.visit-card:hover { background: rgba(31, 95, 58, 0.97); transform: translateY(-1px); box-shadow: 0 12px 28px rgba(0,0,0,0.3); }
+.visit-card:active { transform: scale(.98); }
+.visit-name { font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: .02em; text-align: center; }
+
+/* ── LEVEL ── */
+.level-card{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:18px 20px;
+  display:flex;align-items:center;gap:16px;
+  text-align:left;width:100%;
+  transition:all .2s;
+  margin-bottom:10px;
+}
+.level-card:hover{background:var(--bg4);border-color:var(--bord2);}
+.level-card:active{transform:scale(.98);}
+.level-num{
+  width:44px;height:44px;border-radius:50%;
+  background:var(--bg4);border:1px solid var(--bord2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;color:var(--text2);flex-shrink:0;
+}
+.level-name{font-size:16px;font-weight:600;margin-bottom:3px;}
+.level-meta{font-size:12px;color:var(--text3);}
+.level-arrow{color:var(--text3);font-size:18px;margin-left:auto;}
+
+/* ── QUESTION ── */
+#s-question{flex-direction:column;}
+.q-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 24px 8px;flex-shrink:0;
+}
+.q-back{font-size:15px;color:var(--text2);padding:6px 0;transition:color .2s;}
+.q-back:hover{color:var(--text);}
+.q-count{font-size:13px;color:var(--text3);}
+.q-prog{height:2px;background:var(--border);flex-shrink:0;margin:0 24px;}
+.q-prog-fill{height:100%;background:#fff;border-radius:1px;transition:width .4s ease;}
+.q-body{flex:1;overflow-y:auto;padding:24px 24px 20px;}
+.q-text{
+  font-size:22px;font-weight:700;
+  letter-spacing:-.02em;line-height:1.35;
+  margin-bottom:26px;
+}
+.q-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);padding:18px 20px;
+  font-size:15px;font-weight:500;color:var(--text);
+  text-align:left;width:100%;
+  transition:all .2s;margin-bottom:10px;
+}
+.q-card:hover{background:var(--bg4);border-color:var(--bord2);}
+.q-card:active{transform:scale(.98);}
+.q-card.selected{background:#fff;color:#000;border-color:#fff;}
+.q-other-input{
+  width:100%;background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:16px 18px;font-size:15px;color:var(--text);
+  outline:none;-webkit-appearance:none;
+  transition:border-color .2s;margin-bottom:10px;
+}
+.q-other-input::placeholder{color:var(--text3);}
+.q-other-input:focus{border-color:var(--bord2);}
+
+/* ── COMPLETE ── */
+#s-complete .scroll{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;gap:18px;
+}
+.complete-ring{
+  width:88px;height:88px;border-radius:50%;
+  border:2px solid rgba(48,209,88,.3);
+  display:flex;align-items:center;justify-content:center;
+}
+.complete-inner{
+  width:64px;height:64px;border-radius:50%;
+  background:rgba(48,209,88,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;
+}
+.complete-title{font-size:26px;font-weight:700;letter-spacing:-.02em;}
+.complete-sub{font-size:14px;color:var(--text2);line-height:1.8;font-weight:300;}
+.complete-back{
+  background:var(--bg3);color:var(--text2);
+  border:1px solid var(--border);border-radius:var(--r);
+  padding:14px 32px;font-size:14px;font-weight:500;
+  transition:all .2s;margin-top:4px;
+}
+.complete-back:hover{border-color:var(--bord2);color:var(--text);}
+
+/* ── LOGIN ── */
+#s-login .scroll{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:22px;
+}
+.login-icon{
+  width:64px;height:64px;border-radius:50%;
+  background:var(--bg3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+}
+.login-title{font-size:24px;font-weight:700;letter-spacing:-.02em;}
+.login-sub{font-size:13px;color:var(--text2);text-align:center;line-height:1.6;font-weight:300;margin-top:-10px;}
+.login-form{width:100%;display:flex;flex-direction:column;gap:10px;}
+.login-err{color:var(--red);font-size:13px;text-align:center;display:none;}
+.login-back-btn{font-size:14px;color:var(--text3);transition:color .2s;text-align:center;}
+.login-back-btn:hover{color:var(--text2);}
+
+/* ── ADMIN LIST ── */
+#s-admin{}
+.admin-inner{flex:1;overflow-y:auto;padding:16px 20px 20px;}
+.admin-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0 16px;
+}
+.admin-title{font-size:22px;font-weight:700;letter-spacing:-.02em;}
+.refresh-btn{font-size:13px;color:var(--text3);transition:color .2s;}
+.refresh-btn:hover{color:var(--text2);}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.stat-box{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--rsm);padding:12px 6px;
+  text-align:center;cursor:pointer;transition:all .2s;
+}
+.stat-box.on{border-color:var(--bord2);background:var(--bg4);}
+.stat-box:hover{border-color:var(--bord2);}
+.stat-num{font-size:20px;font-weight:700;}
+.stat-lbl{font-size:10px;color:var(--text3);margin-top:2px;letter-spacing:.04em;}
+.search-box{
+  width:100%;background:var(--bg3);
+  border:1px solid var(--border);border-radius:var(--rsm);
+  padding:12px 16px;font-size:14px;color:var(--text);
+  outline:none;-webkit-appearance:none;margin-bottom:12px;
+  transition:border-color .2s;
+}
+.search-box::placeholder{color:var(--text3);}
+.search-box:focus{border-color:var(--bord2);}
+.cust-item{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px 18px;
+  display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:all .2s;margin-bottom:8px;
+}
+.cust-item:hover{background:var(--bg4);border-color:var(--bord2);}
+.cust-item:active{transform:scale(.99);}
+.cust-av{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg4);border:1px solid var(--bord2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;flex-shrink:0;
+}
+.cust-name{font-size:15px;font-weight:600;margin-bottom:3px;}
+.cust-meta{font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
+.cust-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.b-pending {background:rgba(255,214,10,.12);color:#ffd60a;}
+.b-active  {background:rgba(77,171,255,.12);color:#4dabff;}
+.b-applied {background:rgba(48,209,88,.12); color:#30d158;}
+.b-closed  {background:rgba(255,255,255,.06);color:var(--text3);}
+.score-chip{font-size:13px;font-weight:700;}
+.empty-msg{padding:60px 0;text-align:center;color:var(--text3);font-size:14px;}
+
+/* ── ADMIN DETAIL ── */
+#s-detail{flex-direction:column;}
+#s-detail .scroll{display:flex;flex-direction:column;gap:12px;}
+.detail-back{
+  display:flex;align-items:center;gap:4px;
+  font-size:14px;color:var(--text2);
+  padding:6px 0;align-self:flex-start;transition:color .2s;
+}
+.detail-back:hover{color:var(--text);}
+.detail-hero{display:flex;align-items:center;gap:14px;padding:8px 0 4px;}
+.detail-av{
+  width:52px;height:52px;border-radius:50%;
+  background:var(--bg3);border:1px solid var(--bord2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:700;flex-shrink:0;
+}
+.detail-name{font-size:22px;font-weight:700;letter-spacing:-.02em;}
+.detail-meta{font-size:12px;color:var(--text3);margin-top:3px;}
+.dc{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px 18px;
+}
+.dc-title{
+  font-size:11px;font-weight:600;color:var(--text3);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;
+}
+.ans-row{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:9px 0;border-bottom:1px solid var(--border);gap:12px;
+}
+.ans-row:last-child{border-bottom:none;}
+.ans-q{font-size:12px;color:var(--text3);flex-shrink:0;max-width:100px;}
+.ans-a{font-size:13px;font-weight:600;text-align:right;}
+.score-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;}
+.score-big{font-size:36px;font-weight:700;}
+.score-hint{font-size:13px;color:var(--text3);}
+.score-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.score-fill{height:100%;border-radius:2px;transition:width .8s ease;}
+.status-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.st-pill{
+  padding:6px 14px;border-radius:20px;
+  font-size:12px;font-weight:600;border:1px solid transparent;
+  opacity:.4;transition:all .2s;cursor:pointer;
+}
+.st-pill.on{opacity:1;}
+.pri-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;}
+.pri-n{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--bg4);border:1px solid var(--bord2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;
+}
+.pri-t{font-size:14px;line-height:1.5;color:var(--text2);}
+.need-row{
+  padding:11px 14px;margin-bottom:8px;
+  background:rgba(255,214,10,.05);
+  border:1px solid rgba(255,214,10,.12);
+  border-radius:var(--rsm);font-size:13px;color:var(--text2);line-height:1.6;
+}
+.proposal-box{
+  font-size:14px;color:var(--text2);line-height:1.8;
+  padding:14px 16px;
+  background:rgba(77,171,255,.06);
+  border:1px solid rgba(77,171,255,.14);
+  border-radius:var(--rsm);
+}
+
+/* ── SETTINGS ── */
+#s-settings{flex-direction:column;}
+.set-group{margin-bottom:24px;}
+.set-lbl{
+  font-size:11px;font-weight:600;color:var(--text3);
+  letter-spacing:.12em;text-transform:uppercase;
+  padding:0 4px;margin-bottom:8px;
+}
+.set-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px 18px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.set-input{
+  width:100%;background:var(--bg4);border:1px solid var(--border);
+  border-radius:var(--rsm);padding:13px 16px;
+  font-size:15px;color:var(--text);outline:none;
+  -webkit-appearance:none;transition:border-color .2s;
+}
+.set-input::placeholder{color:var(--text3);}
+.set-input:focus{border-color:var(--bord2);}
+.set-input[readonly]{color:var(--text3);}
+.set-note{font-size:12px;color:var(--text3);line-height:1.7;}
+.set-note a{color:rgba(255,255,255,.45);text-decoration:underline;}
+.set-btn{
+  background:#fff;color:#000;border-radius:var(--rsm);
+  padding:13px;font-size:14px;font-weight:600;
+  width:100%;transition:opacity .2s;
+}
+.set-btn:hover{opacity:.88;}
+.set-btn:active{transform:scale(.98);}
+.set-ok{font-size:13px;color:var(--green);text-align:center;display:none;}
+.set-err{font-size:13px;color:var(--red);text-align:center;display:none;}
+.logout-btn{
+  background:none;color:var(--red);
+  border:1px solid rgba(255,69,58,.3);border-radius:var(--rsm);
+  padding:13px;font-size:14px;font-weight:500;
+  width:100%;transition:all .2s;
+}
+.logout-btn:hover{background:rgba(255,69,58,.06);}
+
+/* ── BOTTOM NAV ── */
+#admin-nav{
+  display:none;
+  background:rgba(10,10,10,.95);
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+#admin-nav.show{display:flex;}
+.nav-btn{
+  flex:1;padding:10px 4px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:var(--text3);font-size:10px;font-weight:500;
+  transition:color .2s;letter-spacing:.04em;
+}
+.nav-btn span:first-child{font-size:20px;}
+.nav-btn.on{color:#fff;}
 </style>
 </head>
 <body>
 <div id="app">
 
   <!-- LOADING -->
-  <div id="loading">
-    <div class="spinner"></div>
-  </div>
+  <div id="loading"><div class="spinner"></div></div>
 
-  <!-- STATUS BAR -->
-  <div class="status-bar">
-    <div class="status-logo">お部屋相談</div>
-    <div class="status-right">
-      <div class="sync-dot" id="sync-dot"></div>
-      <button class="staff-btn" id="staff-btn" onclick="handleStaff()">スタッフ</button>
+  <!-- PROGRESS BAR (質問中のみ表示) -->
+  <div id="progwrap" style="display:none"><div id="progfill"></div></div>
+
+  <!-- ========== CUSTOMER SCREENS ========== -->
+
+  <!-- ① ウェルカム -->
+  <div id="s-welcome" class="screen active">
+    <!-- ヘッダー -->
+    <div class="w-header">
+      <div class="w-header-logo">お部屋相談</div>
+      <button class="w-gear-btn" onclick="handleStaff()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
     </div>
-  </div>
 
-  <!-- ======================================================
-       CUSTOMER SCREENS
-  ====================================================== -->
-
-  <!-- WELCOME -->
-  <div id="screen-welcome" class="screen active">
-    <div style="flex:1;display:flex;flex-direction:column;padding:0 28px;justify-content:center;gap:48px">
-      <div class="welcome-heading">
-        <div class="welcome-eyebrow">Real Estate Hearing</div>
-        <h1 class="welcome-title">
-          理想の<span>お部屋</span>を<br>
-          見つけましょう
-        </h1>
-        <p class="welcome-sub">
-          AIがご希望をお聞きして、<br>
-          最適な物件をご提案します。
-        </p>
+    <!-- メインコンテンツ -->
+    <div class="w-body">
+      <div class="w-by">
+        by
+        <span class="w-by-logo">
+          <span class="w-by-icon">🌿</span>
+          不動産 <span class="w-by-green">みどり</span>
+        </span>
       </div>
-      <div class="welcome-cards">
-        <button class="visit-card" onclick="selectVisit('store')">
-          <div class="visit-card-icon">🏪</div>
-          <div class="visit-card-title">ご来店のお客様</div>
-          <div class="visit-card-desc">店舗にてスタッフと一緒にご利用ください</div>
-        </button>
-        <button class="visit-card" onclick="selectVisit('remote')">
-          <div class="visit-card-icon">📱</div>
-          <div class="visit-card-title">ご自宅などでご利用の方</div>
-          <div class="visit-card-desc">ご自分のペースでお答えください</div>
-        </button>
+      <div class="w-title">
+        理想の<span class="w-title-green">お部屋</span>を<br>
+        見つけましょう
       </div>
+      <div class="w-sub">AIがご希望をお聞きして、<br>最適な物件をご提案します。</div>
+    </div>
+
+    <!-- ボタンエリア -->
+    <div class="w-buttons">
+      <button class="visit-card" onclick="selectVisit('store')">
+        <div class="visit-name">ご来店のお客様</div>
+      </button>
+      <button class="visit-card" onclick="selectVisit('remote')">
+        <div class="visit-name">ご自宅などでご利用の方</div>
+      </button>
     </div>
   </div>
 
-  <!-- LEVEL SELECT -->
-  <div id="screen-level" class="screen">
-    <div class="level-header">
-      <div class="level-label">質問レベルを選択</div>
-      <div class="level-title">どのくらい<br>詳しく教えますか？</div>
-    </div>
-    <div class="level-cards">
+  <!-- ② レベル選択 -->
+  <div id="s-level" class="screen">
+    <div class="scroll">
+      <div class="sec-label">質問レベルを選択</div>
+      <div class="sec-title">どのくらい<br>詳しく教えますか？</div>
       <button class="level-card" onclick="selectLevel('easy',3)">
-        <div class="level-card-num">3</div>
-        <div class="level-card-body">
-          <div class="level-card-name">かんたん</div>
-          <div class="level-card-meta">3問 ・ 約1分 ・ 基本情報のみ</div>
-        </div>
-        <div class="level-card-arrow">›</div>
+        <div class="level-num">3</div>
+        <div><div class="level-name">かんたん</div><div class="level-meta">3問 ・ 約1分</div></div>
+        <div class="level-arrow">›</div>
       </button>
       <button class="level-card" onclick="selectLevel('normal',5)">
-        <div class="level-card-num">5</div>
-        <div class="level-card-body">
-          <div class="level-card-name">普通</div>
-          <div class="level-card-meta">5問 ・ 約2分 ・ 主要条件を確認</div>
-        </div>
-        <div class="level-card-arrow">›</div>
+        <div class="level-num">5</div>
+        <div><div class="level-name">普通</div><div class="level-meta">5問 ・ 約2分</div></div>
+        <div class="level-arrow">›</div>
       </button>
       <button class="level-card" onclick="selectLevel('detailed',10)">
-        <div class="level-card-num">10</div>
-        <div class="level-card-body">
-          <div class="level-card-name">ていねい</div>
-          <div class="level-card-meta">10問 ・ 約4分 ・ 生活スタイルも確認</div>
-        </div>
-        <div class="level-card-arrow">›</div>
+        <div class="level-num">10</div>
+        <div><div class="level-name">ていねい</div><div class="level-meta">10問 ・ 約4分</div></div>
+        <div class="level-arrow">›</div>
       </button>
       <button class="level-card" onclick="selectLevel('full',15)">
-        <div class="level-card-num">15</div>
-        <div class="level-card-body">
-          <div class="level-card-name">しっかり</div>
-          <div class="level-card-meta">15問 ・ 約7分 ・ こだわり条件まで</div>
-        </div>
-        <div class="level-card-arrow">›</div>
+        <div class="level-num">15</div>
+        <div><div class="level-name">しっかり</div><div class="level-meta">15問 ・ 約7分</div></div>
+        <div class="level-arrow">›</div>
       </button>
     </div>
   </div>
 
-  <!-- BASIC INFO -->
-  <div id="screen-info" class="screen">
-    <div class="info-header">
-      <div class="level-label">基本情報の入力</div>
-      <div class="level-title">まず、あなたの<br>情報を教えてください</div>
-    </div>
-    <div class="info-form">
+  <!-- ③ 基本情報 -->
+  <div id="s-info" class="screen">
+    <div class="scroll">
+      <div class="sec-label">基本情報の入力</div>
+      <div class="sec-title">まず、あなたの<br>情報を教えてください</div>
       <div class="form-group">
-        <label class="form-label">お名前<span>*</span></label>
+        <div class="form-label">お名前<span>*</span></div>
         <input class="form-input" id="f-name" type="text" placeholder="例：山田 太郎" autocomplete="name">
         <div class="form-err" id="e-name">お名前を入力してください</div>
       </div>
       <div class="form-group">
-        <label class="form-label">電話番号<span>*</span></label>
+        <div class="form-label">電話番号<span>*</span></div>
         <input class="form-input" id="f-phone" type="tel" placeholder="例：090-1234-5678" autocomplete="tel">
         <div class="form-err" id="e-phone">電話番号を入力してください</div>
       </div>
       <div class="form-group">
-        <label class="form-label">メールアドレス<span>*</span></label>
+        <div class="form-label">メールアドレス<span>*</span></div>
         <input class="form-input" id="f-email" type="email" placeholder="例：yamada@example.com" autocomplete="email">
         <div class="form-err" id="e-email">メールアドレスを入力してください</div>
       </div>
-      <button class="btn-primary" onclick="submitInfo()">次へ進む →</button>
-      <button class="btn-ghost" onclick="goBack('screen-level')">← 戻る</button>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+        <button class="btn-white" onclick="submitInfo()">次へ進む →</button>
+        <button class="btn-ghost" onclick="showScreen('s-level')">← 戻る</button>
+      </div>
     </div>
   </div>
 
-  <!-- QUESTION -->
-  <div id="screen-question" class="screen">
-    <div class="q-top">
-      <div class="q-nav">
-        <button class="q-back-btn" onclick="prevQuestion()">‹ 戻る</button>
-        <div class="q-counter" id="q-counter"></div>
-      </div>
-      <div class="q-prog">
-        <div class="q-prog-fill" id="q-prog-fill"></div>
-      </div>
+  <!-- ④ 質問 -->
+  <div id="s-question" class="screen">
+    <div class="q-nav">
+      <button class="q-back" onclick="prevQ()">‹ 戻る</button>
+      <div class="q-count" id="q-count"></div>
     </div>
+    <div class="q-prog"><div class="q-prog-fill" id="q-prog-fill"></div></div>
     <div class="q-body" id="q-body"></div>
   </div>
 
-  <!-- COMPLETE -->
-  <div id="screen-complete" class="screen">
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center;gap:20px">
-      <div class="complete-ring">
-        <div class="complete-inner">✓</div>
-      </div>
+  <!-- ⑤ 完了 -->
+  <div id="s-complete" class="screen">
+    <div class="scroll">
+      <div class="complete-ring"><div class="complete-inner">✓</div></div>
       <div class="complete-title">ありがとう<br>ございました</div>
       <div class="complete-sub">
         ヒアリングが完了しました。<br>
         担当スタッフが内容を確認し、<br>
         最適な物件をご提案いたします。
       </div>
-      <button class="complete-btn" onclick="goHome()">最初に戻る</button>
+      <button class="complete-back" onclick="goHome()">最初に戻る</button>
     </div>
   </div>
 
-  <!-- ======================================================
-       STAFF SCREENS
-  ====================================================== -->
+  <!-- ========== STAFF SCREENS ========== -->
 
-  <!-- LOGIN -->
-  <div id="screen-login" class="screen">
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;gap:24px">
+  <!-- ⑥ ログイン -->
+  <div id="s-login" class="screen">
+    <div class="scroll">
       <div class="login-icon">🔐</div>
       <div class="login-title">スタッフログイン</div>
       <div class="login-sub">スタッフ専用のパスワードを<br>入力してください</div>
       <div class="login-form">
-        <input class="form-input" type="password" id="pw-input" placeholder="パスワード"
+        <input class="form-input" id="pw-in" type="password"
+          placeholder="パスワード"
           style="text-align:center;letter-spacing:.2em"
           onkeydown="if(event.key==='Enter')doLogin()">
         <div class="login-err" id="login-err">パスワードが違います</div>
-        <button class="btn-primary" onclick="doLogin()">ログイン</button>
-        <button class="login-back" onclick="goHome()">← お客様用画面に戻る</button>
+        <button class="btn-white" onclick="doLogin()">ログイン</button>
+        <button class="login-back-btn" onclick="goHome()">← お客様用画面に戻る</button>
       </div>
     </div>
   </div>
 
-  <!-- ADMIN LIST -->
-  <div id="screen-admin" class="screen">
-    <div class="admin-inner" id="admin-inner">
+  <!-- ⑦ 顧客一覧 -->
+  <div id="s-admin" class="screen">
+    <div class="admin-inner">
       <div class="admin-header">
         <div class="admin-title">顧客一覧</div>
-        <button onclick="refreshList()" style="font-size:13px;color:var(--text3);transition:color .2s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text3)'">↻ 更新</button>
+        <button class="refresh-btn" onclick="renderList()">↻ 更新</button>
       </div>
       <div class="stats-grid" id="stats-grid"></div>
-      <input class="search-box" type="text" id="search-box" placeholder="名前・エリアで検索..." oninput="renderList()">
-      <div class="cust-list" id="cust-list"></div>
+      <input class="search-box" id="search-box" type="text" placeholder="名前・エリアで検索..." oninput="renderList()">
+      <div id="cust-list"></div>
     </div>
   </div>
 
-  <!-- ADMIN DETAIL -->
-  <div id="screen-detail" class="screen">
-    <div class="detail-scroll" id="detail-scroll"></div>
+  <!-- ⑧ 顧客詳細 -->
+  <div id="s-detail" class="screen">
+    <div class="scroll" id="detail-body"></div>
   </div>
 
-  <!-- SETTINGS -->
-  <div id="screen-settings" class="screen">
-    <div class="settings-scroll">
-      <div class="settings-title">設定</div>
+  <!-- ⑨ 設定 -->
+  <div id="s-settings" class="screen">
+    <div class="scroll" style="padding-top:16px">
+      <div class="sec-title" style="font-size:22px;margin-bottom:20px">設定</div>
 
       <div class="set-group">
-        <div class="set-label">スタッフパスワード</div>
+        <div class="set-lbl">スタッフパスワード</div>
         <div class="set-card">
-          <input class="set-input" type="password" id="set-pw" placeholder="新しいパスワードを入力">
+          <input class="set-input" id="set-pw" type="password" placeholder="新しいパスワードを入力">
           <p class="set-note">初期値は <strong style="color:var(--text2)">1234</strong> です。必ず変更してください。</p>
           <button class="set-btn" onclick="savePw()">パスワードを変更</button>
           <div class="set-ok" id="pw-ok">✓ 変更しました</div>
@@ -1176,15 +732,15 @@ a      { color: inherit; }
       </div>
 
       <div class="set-group">
-        <div class="set-label">クラウド同期</div>
+        <div class="set-lbl">クラウド同期</div>
         <div class="set-card">
           <p class="set-note">
             別のスマホと顧客データを共有するための設定です。<br><br>
             ① <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> で無料登録<br>
-            ② 「API Keys」から「X-Master-Key」をコピー<br>
+            ② 「API Keys」→「X-Master-Key」をコピー<br>
             ③ 下に貼り付けて保存
           </p>
-          <input class="set-input" type="password" id="set-jkey" placeholder="$2a$10$... (Master Key)">
+          <input class="set-input" id="set-jkey" type="password" placeholder="$2a$10$... (Master Key)">
           <input class="set-input" id="set-jbin" placeholder="Bin ID（保存後に自動入力）" readonly>
           <button class="set-btn" onclick="saveCloud()">保存・接続する</button>
           <div class="set-ok" id="cloud-ok"></div>
@@ -1193,21 +749,16 @@ a      { color: inherit; }
       </div>
 
       <div class="set-group">
-        <div class="set-label">AIサマリー（任意）</div>
+        <div class="set-lbl">AIサマリー（任意）</div>
         <div class="set-card">
-          <input class="set-input" type="password" id="set-akey" placeholder="sk-ant-...">
-          <p class="set-note">
-            入力するとヒアリング完了後にAIが<br>
-            優先順位・隠れニーズ・提案方針を自動生成します。<br>
-            なくてもアプリは使えます。
-          </p>
+          <input class="set-input" id="set-akey" type="password" placeholder="sk-ant-...">
+          <p class="set-note">入力するとヒアリング完了後にAIが優先順位・隠れニーズ・提案方針を自動生成します。</p>
           <button class="set-btn" onclick="saveAiKey()">保存する</button>
           <div class="set-ok" id="ai-ok">✓ 保存しました</div>
         </div>
       </div>
 
       <div class="set-group">
-        <div class="set-label">アカウント</div>
         <div class="set-card">
           <button class="logout-btn" onclick="doLogout()">ログアウト</button>
         </div>
@@ -1215,392 +766,263 @@ a      { color: inherit; }
     </div>
   </div>
 
-  <!-- ADMIN BOTTOM NAV -->
-  <nav class="admin-nav" id="admin-nav">
-    <button class="admin-nav-btn active" id="nav-list" onclick="switchAdminTab('list')">
+  <!-- BOTTOM NAV -->
+  <nav id="admin-nav">
+    <button class="nav-btn on" id="nav-list" onclick="switchTab('list')">
       <span>👥</span><span>顧客一覧</span>
     </button>
-    <button class="admin-nav-btn" id="nav-settings" onclick="switchAdminTab('settings')">
+    <button class="nav-btn" id="nav-settings" onclick="switchTab('settings')">
       <span>⚙️</span><span>設定</span>
     </button>
   </nav>
 
-</div>
+</div><!-- /app -->
 
 <script>
 /* ============================================================
-   QUESTION DATA
-   ↓ ここを編集すると質問を変えられます
+   質問データ
+   ↓ opts（選択肢）やtextを変えると質問が変わります
 ============================================================ */
-const ALL_QUESTIONS = [
-  // Q1
-  {
-    id: 'budget',
-    text: '希望の家賃は\nどのくらいですか？',
-    opts: ['5万円以下','5〜7万円','7〜10万円','10〜15万円','15万円以上'],
-    other: true,
-    level: 1 // このレベル以上で使用
-  },
-  // Q2
-  {
-    id: 'location',
-    text: '希望のエリアは\nどちらですか？',
-    opts: ['静岡市','藤枝市','焼津市','島田市','掛川市'],
-    other: true,
-    level: 1
-  },
-  // Q3
-  {
-    id: 'roomType',
-    text: '希望の間取りを\n教えてください',
-    opts: ['1R / 1K','1DK / 1LDK','2DK / 2LDK','3LDK以上'],
-    other: true,
-    level: 1
-  },
-  // Q4
-  {
-    id: 'moveIn',
-    text: '入居の希望時期は\nいつ頃ですか？',
-    opts: ['すぐにでも','1ヶ月以内','2〜3ヶ月以内','半年以内','まだ検討中'],
-    other: false,
-    level: 2
-  },
-  // Q5
-  {
-    id: 'priority',
-    text: '一番大切に\nしていることは？',
-    opts: ['家賃の安さ','広さ・間取り','立地・利便性','設備・築年数','日当たり・環境'],
-    other: true,
-    level: 2
-  },
-  // Q6
-  {
-    id: 'commute',
-    text: '通勤・通学先は\nどちらですか？',
-    opts: ['静岡駅周辺','藤枝駅周辺','焼津駅周辺','車通勤（場所不問）'],
-    other: true,
-    level: 3
-  },
-  // Q7
-  {
-    id: 'lifestyle',
-    text: '生活スタイルを\n教えてください',
-    opts: ['在宅ワークが多い','外出が多い','趣味を大切にしたい','家族との時間を重視'],
-    other: true,
-    level: 3
-  },
-  // Q8
-  {
-    id: 'pets',
-    text: 'ペットの飼育を\nご希望ですか？',
-    opts: ['飼育したい（犬）','飼育したい（猫）','複数ペットあり','不要'],
-    other: false,
-    level: 3
-  },
-  // Q9
-  {
-    id: 'parking',
-    text: '駐車場・駐輪場は\n必要ですか？',
-    opts: ['車の駐車場が必要','自転車置き場があれば','バイク置き場も必要','不要'],
-    other: false,
-    level: 3
-  },
-  // Q10
-  {
-    id: 'floor',
-    text: '階数のご希望は\nありますか？',
-    opts: ['1階希望','2階以上','高層階（5階以上）','こだわらない'],
-    other: false,
-    level: 3
-  },
-  // Q11
-  {
-    id: 'building',
-    text: '建物の種類は\nどちらをお好みですか？',
-    opts: ['マンション（鉄筋）','アパート（木造）','新築のみ','こだわらない'],
-    other: false,
-    level: 4
-  },
-  // Q12
-  {
-    id: 'age',
-    text: 'ご年齢を\n教えていただけますか？',
-    opts: ['10代','20代','30代','40代','50代以上'],
-    other: false,
-    level: 4
-  },
-  // Q13
-  {
-    id: 'household',
-    text: '入居される方は\n何名ですか？',
-    opts: ['1人（一人暮らし）','2人（カップル・夫婦）','3人以上（家族）','その他'],
-    other: false,
-    level: 4
-  },
-  // Q14
-  {
-    id: 'facilities',
-    text: '特にこだわる設備は\nありますか？',
-    opts: ['オートロック','宅配ボックス','独立洗面台','浴室乾燥機','インターネット無料'],
-    other: true,
-    level: 4
-  },
-  // Q15
-  {
-    id: 'concerns',
-    text: '不安なことや\nご事情があれば教えてください',
-    opts: ['初めての一人暮らし','外国籍・審査が心配','ペットがいる','急いで探している'],
-    other: true,
-    level: 4
-  },
+const ALL_Q = [
+  { id:'budget',   level:1, text:'希望の家賃は\nどのくらいですか？',
+    opts:['5万円以下','5〜7万円','7〜10万円','10〜15万円','15万円以上'], other:true },
+  { id:'location', level:1, text:'希望のエリアは\nどちらですか？',
+    opts:['静岡市','藤枝市','焼津市','島田市','掛川市'], other:true },
+  { id:'roomType', level:1, text:'希望の間取りを\n教えてください',
+    opts:['1R / 1K','1DK / 1LDK','2DK / 2LDK','3LDK以上'], other:true },
+  { id:'moveIn',   level:2, text:'入居の希望時期は\nいつ頃ですか？',
+    opts:['すぐにでも','1ヶ月以内','2〜3ヶ月以内','半年以内','まだ検討中'], other:false },
+  { id:'priority', level:2, text:'一番大切に\nしていることは？',
+    opts:['家賃の安さ','広さ・間取り','立地・利便性','設備・築年数','日当たり・環境'], other:true },
+  { id:'commute',  level:3, text:'通勤・通学先は\nどちらですか？',
+    opts:['静岡駅周辺','藤枝駅周辺','焼津駅周辺','車通勤（場所不問）'], other:true },
+  { id:'lifestyle',level:3, text:'生活スタイルを\n教えてください',
+    opts:['在宅ワークが多い','外出が多い','趣味を大切にしたい','家族との時間を重視'], other:true },
+  { id:'pets',     level:3, text:'ペットの飼育を\nご希望ですか？',
+    opts:['飼育したい（犬）','飼育したい（猫）','複数ペットあり','不要'], other:false },
+  { id:'parking',  level:3, text:'駐車場・駐輪場は\n必要ですか？',
+    opts:['車の駐車場が必要','自転車置き場があれば','バイク置き場も必要','不要'], other:false },
+  { id:'floor',    level:3, text:'階数のご希望は\nありますか？',
+    opts:['1階希望','2階以上','高層階（5階以上）','こだわらない'], other:false },
+  { id:'building', level:4, text:'建物の種類は\nどちらをお好みですか？',
+    opts:['マンション（鉄筋）','アパート（木造）','新築のみ','こだわらない'], other:false },
+  { id:'age',      level:4, text:'ご年齢を\n教えていただけますか？',
+    opts:['10代','20代','30代','40代','50代以上'], other:false },
+  { id:'household',level:4, text:'入居される方は\n何名ですか？',
+    opts:['1人（一人暮らし）','2人（カップル・夫婦）','3人以上（家族）'], other:true },
+  { id:'facilities',level:4,text:'特にこだわる設備は\nありますか？',
+    opts:['オートロック','宅配ボックス','独立洗面台','浴室乾燥機','インターネット無料'], other:true },
+  { id:'concerns', level:4, text:'不安なことや\nご事情があれば教えてください',
+    opts:['初めての一人暮らし','外国籍・審査が心配','ペットがいる','急いで探している'], other:true },
 ];
 
-/* ============================================================
-   LEVEL CONFIG
-   ↓ レベルごとの質問数設定
-============================================================ */
-const LEVEL_CONFIG = {
-  easy:     { count: 3,  maxLevel: 1 },
-  normal:   { count: 5,  maxLevel: 2 },
-  detailed: { count: 10, maxLevel: 3 },
-  full:     { count: 15, maxLevel: 4 },
+const LEVEL_CFG = {
+  easy:     { maxLv:1 },
+  normal:   { maxLv:2 },
+  detailed: { maxLv:3 },
+  full:     { maxLv:4 },
 };
 
 /* ============================================================
    STATE
 ============================================================ */
-let visitType   = '';
-let levelKey    = '';
-let levelCount  = 0;
-let questions   = [];
-let curQIdx     = 0;
-let answers     = {};
-let basicInfo   = {};
-let isStaff     = false;
-let statusFilter= '';
-let showOther   = false; // 「その他」入力表示フラグ
+let visitType='', levelKey='', questions=[], curQ=0;
+let answers={}, basicInfo={};
+let isStaff=false, statusFilter='';
 
 /* ============================================================
-   HELPERS
+   UTILITIES
 ============================================================ */
-const $ = id => document.getElementById(id);
-function genId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-
-function showLoad(){ $('loading').style.display='flex'; }
-function hideLoad(){ $('loading').style.display='none'; }
+const $=id=>document.getElementById(id);
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function showLoad(){$('loading').classList.add('show');}
+function hideLoad(){$('loading').classList.remove('show');}
 
 /* ============================================================
-   SCREEN TRANSITION
+   SCREEN MANAGEMENT（シンプル表示/非表示）
 ============================================================ */
-let currentScreen = 'screen-welcome';
+const SCREENS=['s-welcome','s-level','s-info','s-question','s-complete','s-login','s-admin','s-detail','s-settings'];
 
-function goTo(id, direction='forward'){
-  const cur = $(currentScreen);
-  const next = $(id);
-  if(!next) return;
-
-  const outClass = direction==='forward' ? 'slide-out' : 'slide-back-out';
-  const inClass  = direction==='forward' ? 'slide-in'  : 'slide-back-in';
-
-  cur.classList.add(outClass);
-  setTimeout(()=>{
-    cur.classList.remove('active', outClass);
-    next.classList.add('active', inClass);
-    setTimeout(()=>next.classList.remove(inClass), 400);
-    currentScreen = id;
-  }, 240);
+function showScreen(id){
+  // 全スクリーンを非表示
+  SCREENS.forEach(s=>{
+    const el=$(s);
+    if(el) el.classList.remove('active');
+  });
+  // 指定スクリーンのみ表示
+  const target=$(id);
+  if(target) target.classList.add('active');
+  // 進捗バー表示制御
+  $('progwrap').style.display = (id==='s-question') ? 'block' : 'none';
 }
 
-function goBack(targetId){ goTo(targetId, 'back'); }
 function goHome(){
-  // reset state
-  visitType=''; levelKey=''; answers={}; basicInfo={};
-  showOther=false;
-  $('admin-nav').classList.remove('visible');
-  goTo('screen-welcome','back');
+  visitType=''; levelKey=''; answers={}; basicInfo=''; curQ=0;
+  $('admin-nav').classList.remove('show');
+  
+  isStaff=false;
+  showScreen('s-welcome');
 }
 
 /* ============================================================
-   WELCOME → LEVEL
+   WELCOME
 ============================================================ */
 function selectVisit(type){
-  visitType = type;
-  goTo('screen-level');
+  visitType=type;
+  showScreen('s-level');
 }
 
 /* ============================================================
-   LEVEL → INFO
+   LEVEL
 ============================================================ */
 function selectLevel(key, count){
-  levelKey   = key;
-  levelCount = count;
-  const cfg  = LEVEL_CONFIG[key];
-  // filter questions by level
-  questions  = ALL_QUESTIONS.filter(q => q.level <= cfg.maxLevel).slice(0, cfg.count);
-  goTo('screen-info');
+  levelKey=key;
+  const cfg=LEVEL_CFG[key];
+  questions=ALL_Q.filter(q=>q.level<=cfg.maxLv).slice(0,count);
+  showScreen('s-info');
 }
 
 /* ============================================================
-   INFO SUBMIT
+   BASIC INFO
 ============================================================ */
 function submitInfo(){
-  const name  = $('f-name').value.trim();
-  const phone = $('f-phone').value.trim();
-  const email = $('f-email').value.trim();
-  let ok = true;
+  const name=$('f-name').value.trim();
+  const phone=$('f-phone').value.trim();
+  const email=$('f-email').value.trim();
+  let ok=true;
 
-  if(!name){  $('e-name').style.display='block';  $('f-name').classList.add('error');  ok=false; } else { $('e-name').style.display='none';  $('f-name').classList.remove('error'); }
-  if(!phone){ $('e-phone').style.display='block'; $('f-phone').classList.add('error'); ok=false; } else { $('e-phone').style.display='none'; $('f-phone').classList.remove('error'); }
-  if(!email){ $('e-email').style.display='block'; $('f-email').classList.add('error'); ok=false; } else { $('e-email').style.display='none'; $('f-email').classList.remove('error'); }
-
+  [['f-name','e-name',name],['f-phone','e-phone',phone],['f-email','e-email',email]].forEach(([fi,ei,val])=>{
+    if(!val){
+      $(fi).classList.add('err'); $(ei).style.display='block'; ok=false;
+    } else {
+      $(fi).classList.remove('err'); $(ei).style.display='none';
+    }
+  });
   if(!ok) return;
 
-  basicInfo = { name, phone, email };
-  curQIdx   = 0;
-  answers   = {};
-  showOther = false;
-  renderQuestion();
-  goTo('screen-question');
+  basicInfo={name,phone,email};
+  curQ=0; answers={};
+  renderQ();
+  showScreen('s-question');
 }
 
 /* ============================================================
-   QUESTION FLOW
+   QUESTION
 ============================================================ */
-function renderQuestion(){
-  if(curQIdx >= questions.length){ finishHearing(); return; }
+function renderQ(){
+  if(curQ>=questions.length){ finishHearing(); return; }
+  const q=questions[curQ];
+  const pct=Math.round((curQ/questions.length)*100);
+  $('q-prog-fill').style.width=pct+'%';
+  $('q-count').textContent=(curQ+1)+' / '+questions.length;
 
-  const q = questions[curQIdx];
-  const pct = Math.round((curQIdx / questions.length) * 100);
-  $('q-prog-fill').style.width = pct + '%';
-  $('q-counter').textContent   = (curQIdx+1) + ' / ' + questions.length;
-  showOther = false;
+  // Build options HTML
+  const optsHtml=q.opts.map(o=>`
+    <button class="q-card" onclick="selectOpt(this,'${esc(o)}')">${o}</button>
+  `).join('');
 
-  const body = $('q-body');
-  // Build HTML
-  const cardsHtml = q.opts.map((opt, i) => `
-    <button class="q-card" style="--i:${i}" onclick="selectOption('${escQ(opt)}')">
-      ${opt}
-    </button>`).join('');
+  const otherHtml=q.other?`
+    <button class="q-card" id="other-toggle" onclick="toggleOther()">その他（自由入力）</button>
+    <div id="other-area" style="display:none">
+      <input class="q-other-input" id="other-in" type="text" placeholder="自由にご入力ください"
+        onkeydown="if(event.key==='Enter'&&this.value.trim())selectOpt(null,this.value.trim())">
+      <button class="btn-white" style="font-size:14px;padding:13px" onclick="submitOther()">この内容で次へ →</button>
+    </div>`:'' ;
 
-  const otherHtml = q.other ? `
-    <button class="q-card" style="--i:${q.opts.length}" onclick="toggleOther()">
-      その他（自由入力）
-    </button>
-    <div class="q-free-wrap" id="free-wrap" style="display:none">
-      <input class="q-free-input" id="free-input" type="text" placeholder="自由にご入力ください"
-        onkeydown="if(event.key==='Enter'&&this.value.trim())selectOption(this.value.trim())">
-      <button class="q-free-btn" onclick="submitFree()">この内容で次へ →</button>
-    </div>` : '';
-
-  body.innerHTML = `
+  $('q-body').innerHTML=`
     <div class="q-text">${q.text.replace(/\n/g,'<br>')}</div>
-    <div class="q-cards">
-      ${cardsHtml}
-      ${otherHtml}
-    </div>`;
+    ${optsHtml}
+    ${otherHtml}`;
 }
 
-function escQ(str){ return str.replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+function esc(s){return s.replace(/'/g,"\\'");}
 
 function toggleOther(){
-  const wrap = $('free-wrap');
-  if(!wrap) return;
-  showOther = !showOther;
-  wrap.style.display = showOther ? 'block' : 'none';
-  if(showOther) setTimeout(()=>{ const fi=$('free-input'); if(fi) fi.focus(); },100);
+  const area=$('other-area');
+  const btn=$('other-toggle');
+  if(!area) return;
+  const show=area.style.display==='none';
+  area.style.display=show?'block':'none';
+  if(show){ btn.classList.add('selected'); setTimeout(()=>{const i=$('other-in');if(i)i.focus();},100); }
+  else btn.classList.remove('selected');
 }
 
-function submitFree(){
-  const fi = $('free-input');
-  if(fi && fi.value.trim()) selectOption(fi.value.trim());
+function submitOther(){
+  const v=$('other-in');
+  if(v&&v.value.trim()) selectOpt(null,v.value.trim());
 }
 
-function selectOption(val){
-  const q = questions[curQIdx];
-  // Animate selected
-  document.querySelectorAll('.q-card').forEach(c=>{
-    if(c.textContent.trim().startsWith(val.substring(0,10))){ c.classList.add('selected'); }
-  });
-  answers[q.id] = val;
-  setTimeout(()=>{
-    curQIdx++;
-    if(curQIdx >= questions.length){
-      finishHearing();
-    } else {
-      renderQuestion();
-    }
-  }, 220);
+function selectOpt(btn, val){
+  // 選択アニメーション
+  if(btn){ btn.classList.add('selected'); }
+  answers[questions[curQ].id]=val;
+  setTimeout(()=>{ curQ++; renderQ(); }, 200);
 }
 
-function prevQuestion(){
-  if(curQIdx <= 0){ goBack('screen-info'); return; }
-  curQIdx--;
-  renderQuestion();
+function prevQ(){
+  if(curQ<=0){ showScreen('s-info'); return; }
+  curQ--;
+  renderQ();
 }
 
 /* ============================================================
    FINISH
 ============================================================ */
 async function finishHearing(){
-  const cid = genId();
-  const customer = {
-    id: cid,
-    name: basicInfo.name,
-    phone: basicInfo.phone,
-    email: basicInfo.email,
-    visitType,
-    levelKey,
-    status: 'pending',
-    answers: { ...answers },
-    summary: null,
-    createdAt: Date.now()
+  showScreen('s-complete');
+  const cid=genId();
+  const c={
+    id:cid,
+    name:basicInfo.name, phone:basicInfo.phone, email:basicInfo.email,
+    visitType, levelKey,
+    status:'pending',
+    answers:{...answers},
+    summary:null,
+    createdAt:Date.now()
   };
-  await saveCustomer(customer);
-  goTo('screen-complete');
-  generateSummary(cid, { ...basicInfo, ...answers });
+  await saveCustomer(c);
+  generateSummary(cid,{...basicInfo,...answers});
 }
 
 /* ============================================================
    AUTH
 ============================================================ */
 function handleStaff(){
-  if(isStaff){ doLogout(); } else { goTo('screen-login'); }
+  if(isStaff){ doLogout(); } else { showScreen('s-login'); }
 }
 
 function doLogin(){
-  const pw = $('pw-input').value;
-  if(pw === getPw()){
-    isStaff = true;
-    $('pw-input').value = '';
-    $('login-err').style.display = 'none';
-    $('staff-btn').textContent = 'ログアウト';
-    $('admin-nav').classList.add('visible');
-    if(getJKey()) $('sync-dot').style.display='block';
-    switchAdminTab('list');
+  const pw=$('pw-in').value;
+  if(pw===getPw()){
+    isStaff=true;
+    $('pw-in').value='';
+    $('login-err').style.display='none';
+    
+    $('admin-nav').classList.add('show');
+    switchTab('list');
   } else {
     $('login-err').style.display='block';
-    $('pw-input').value='';
-    $('pw-input').focus();
+    $('pw-in').value='';
+    $('pw-in').focus();
   }
 }
 
 function doLogout(){
-  isStaff = false;
-  $('staff-btn').textContent = 'スタッフ';
-  $('admin-nav').classList.remove('visible');
-  $('sync-dot').style.display='none';
+  isStaff=false;
+  
+  $('admin-nav').classList.remove('show');
   goHome();
 }
 
-function switchAdminTab(tab){
-  document.querySelectorAll('.admin-nav-btn').forEach(b=>b.classList.remove('active'));
+function switchTab(tab){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
   if(tab==='list'){
-    goTo('screen-admin');
-    $('nav-list').classList.add('active');
+    showScreen('s-admin');
+    $('nav-list').classList.add('on');
     renderList();
   } else {
-    goTo('screen-settings');
-    $('nav-settings').classList.add('active');
+    showScreen('s-settings');
+    $('nav-settings').classList.add('on');
     loadSettings();
   }
 }
@@ -1610,17 +1032,17 @@ function switchAdminTab(tab){
 ============================================================ */
 function getLs(k,d=null){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){return d;} }
 function setLs(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
-function getPw()     { return getLs('re_pw','1234'); }
-function getJKey()   { return localStorage.getItem('re_jkey')||''; }
-function getJBin()   { return localStorage.getItem('re_jbin')||''; }
-function getAiKey()  { return localStorage.getItem('re_akey')||''; }
-function getLocalC() { return getLs('re_customers',[]); }
+function getPw()   { return getLs('re_pw','1234'); }
+function getJKey() { return localStorage.getItem('re_jkey')||''; }
+function getJBin() { return localStorage.getItem('re_jbin')||''; }
+function getAiKey(){ return localStorage.getItem('re_akey')||''; }
+function getLocalC(){ return getLs('re_customers',[]); }
 function setLocalC(l){ setLs('re_customers',l); }
 
-const JB = 'https://api.jsonbin.io/v3';
+const JB='https://api.jsonbin.io/v3';
 
 async function jbGet(){
-  const key=getJKey(), bin=getJBin();
+  const key=getJKey(),bin=getJBin();
   if(!key||!bin) return null;
   try{
     const r=await fetch(`${JB}/b/${bin}/latest`,{headers:{'X-Master-Key':key,'X-Bin-Meta':false}});
@@ -1631,7 +1053,7 @@ async function jbGet(){
 }
 
 async function jbSet(list){
-  const key=getJKey(), bin=getJBin();
+  const key=getJKey(),bin=getJBin();
   if(!key||!bin) return false;
   try{
     const r=await fetch(`${JB}/b/${bin}`,{
@@ -1669,21 +1091,17 @@ async function saveCustomer(c){
   const i=list.findIndex(x=>x.id===c.id);
   if(i>=0) list[i]=c; else list.unshift(c);
   setLocalC(list);
-  if(getJKey()&&getJBin()){
-    $('sync-dot').style.background='#ffd60a';
-    const ok=await jbSet(list);
-    $('sync-dot').style.background=ok?'#30d158':'#ff453a';
-  }
+  if(getJKey()&&getJBin()) await jbSet(list);
 }
 
 /* ============================================================
    AI SUMMARY
 ============================================================ */
-async function generateSummary(cid, ans){
+async function generateSummary(cid,ans){
   const apiKey=getAiKey();
   if(!apiKey) return;
   const txt=Object.entries(ans).map(([k,v])=>`${k}: ${v}`).join('\n');
-  const prompt=`あなたは不動産営業アドバイザーです。以下の顧客情報とヒアリング回答を分析し、営業担当者向けサマリーをJSON形式のみで返してください。説明文不要。\n\n${txt}\n\nJSON:\n{"priorities":["最重要: ...","重要: ...","あれば嬉しい: ..."],"hiddenNeeds":["...","..."],"proposal":"提案方針150字","score":75,"overview":"顧客概要2〜3文"}`;
+  const prompt=`あなたは不動産営業アドバイザーです。以下の顧客情報とヒアリング回答を分析し、営業担当者向けサマリーをJSON形式のみで返してください。\n\n${txt}\n\nJSON:\n{"priorities":["最重要: ...","重要: ...","あれば嬉しい: ..."],"hiddenNeeds":["...","..."],"proposal":"提案方針150字","score":75,"overview":"顧客概要2〜3文"}`;
   try{
     const r=await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
@@ -1696,19 +1114,18 @@ async function generateSummary(cid, ans){
     const list=getLocalC();
     const idx=list.findIndex(c=>c.id===cid);
     if(idx>=0){ list[idx].summary=parsed; setLocalC(list); if(getJKey()&&getJBin()) await jbSet(list); }
-  }catch(e){console.log('AI summary error',e);}
+  }catch(e){console.log('AI err',e);}
 }
 
 /* ============================================================
    ADMIN LIST
 ============================================================ */
 const ST={
-  pending: {l:'未対応',cls:'b-pending', c:'#ffd60a', bg:'rgba(255,214,10,.12)'},
-  active:  {l:'対応中',cls:'b-active',  c:'#4dabff', bg:'rgba(10,132,255,.12)'},
-  applied: {l:'申込済',cls:'b-applied', c:'#30d158', bg:'rgba(48,209,88,.12)'},
-  closed:  {l:'クローズ',cls:'b-closed',c:'rgba(255,255,255,.35)',bg:'rgba(255,255,255,.06)'},
+  pending: {l:'未対応',cls:'b-pending',c:'#ffd60a',bg:'rgba(255,214,10,.12)'},
+  active:  {l:'対応中',cls:'b-active', c:'#4dabff',bg:'rgba(77,171,255,.12)'},
+  applied: {l:'申込済',cls:'b-applied',c:'#30d158',bg:'rgba(48,209,88,.12)'},
+  closed:  {l:'クローズ',cls:'b-closed',c:'var(--text3)',bg:'rgba(255,255,255,.06)'},
 };
-const ML={easy:'かんたん',normal:'普通',detailed:'ていねい',full:'しっかり'};
 
 async function renderList(){
   showLoad();
@@ -1716,22 +1133,21 @@ async function renderList(){
   hideLoad();
   let list=statusFilter?all.filter(c=>c.status===statusFilter):all;
   const q=($('search-box')?.value||'').trim();
-  if(q) list=list.filter(c=>(c.name||'').includes(q)||(c.answers?.location||'').includes(q)||(c.answers?.budget||'').includes(q));
+  if(q) list=list.filter(c=>(c.name||'').includes(q)||(c.answers?.location||'').includes(q));
 
-  // stats
   const cnt={pending:0,active:0,applied:0,closed:0};
-  all.forEach(c=>{cnt[c.status]=(cnt[c.status]||0)+1;});
+  all.forEach(c=>{if(cnt[c.status]!==undefined)cnt[c.status]++;});
   $('stats-grid').innerHTML=`
-    <div class="stat-box ${statusFilter===''?'active':''}" onclick="setFilter('')">
+    <div class="stat-box ${statusFilter===''?'on':''}" onclick="setFilter('')">
       <div class="stat-num">${all.length}</div><div class="stat-lbl">全員</div>
     </div>
-    <div class="stat-box ${statusFilter==='pending'?'active':''}" onclick="setFilter('pending')">
+    <div class="stat-box ${statusFilter==='pending'?'on':''}" onclick="setFilter('pending')">
       <div class="stat-num" style="color:#ffd60a">${cnt.pending}</div><div class="stat-lbl">未対応</div>
     </div>
-    <div class="stat-box ${statusFilter==='active'?'active':''}" onclick="setFilter('active')">
+    <div class="stat-box ${statusFilter==='active'?'on':''}" onclick="setFilter('active')">
       <div class="stat-num" style="color:#4dabff">${cnt.active}</div><div class="stat-lbl">対応中</div>
     </div>
-    <div class="stat-box ${statusFilter==='applied'?'active':''}" onclick="setFilter('applied')">
+    <div class="stat-box ${statusFilter==='applied'?'on':''}" onclick="setFilter('applied')">
       <div class="stat-num" style="color:#30d158">${cnt.applied}</div><div class="stat-lbl">申込済</div>
     </div>`;
 
@@ -1745,12 +1161,12 @@ async function renderList(){
     const scC=sc>=70?'#30d158':sc>=40?'#ffd60a':'#ff453a';
     return `<div class="cust-item" onclick="viewDetail('${c.id}')">
       <div class="cust-av">${(c.name||'?')[0]}</div>
-      <div class="cust-info">
+      <div style="flex:1;min-width:0">
         <div class="cust-name">${c.name||'（名前未入力）'}</div>
         <div class="cust-meta">${c.answers?.budget||''}${c.answers?.location?' · '+c.answers.location:''}</div>
       </div>
       <div class="cust-right">
-        ${sc!=null?`<span class="score-num" style="color:${scC}">${sc}</span>`:''}
+        ${sc!=null?`<span class="score-chip" style="color:${scC}">${sc}</span>`:''}
         <span class="badge ${s.cls}">${s.l}</span>
       </div>
     </div>`;
@@ -1758,46 +1174,40 @@ async function renderList(){
 }
 
 function setFilter(f){ statusFilter=f; renderList(); }
-function refreshList(){ renderList(); }
 
 async function viewDetail(id){
-  goTo('screen-detail');
+  showScreen('s-detail');
   showLoad();
   const all=await getCustomers();
   hideLoad();
   const c=all.find(x=>x.id===id);
-  if(!c){ $('detail-scroll').innerHTML='<button class="detail-back" onclick="switchAdminTab(\'list\')">‹ 戻る</button><p style="color:var(--text3);padding:20px">データが見つかりません</p>'; return; }
+  if(!c){ $('detail-body').innerHTML='<button class="detail-back" onclick="switchTab(\'list\')">‹ 戻る</button>'; return; }
   const sc=c.summary?.score;
   const scC=sc>=70?'#30d158':sc>=40?'#ffd60a':'#ff453a';
-  const ML2={easy:'かんたん',normal:'普通',detailed:'ていねい',full:'しっかり'};
+  const ML={easy:'かんたん',normal:'普通',detailed:'ていねい',full:'しっかり'};
 
-  $('detail-scroll').innerHTML=`
-    <button class="detail-back" onclick="switchAdminTab('list')">‹ 一覧に戻る</button>
-
+  $('detail-body').innerHTML=`
+    <button class="detail-back" onclick="switchTab('list')">‹ 一覧に戻る</button>
     <div class="detail-hero">
       <div class="detail-av">${(c.name||'?')[0]}</div>
       <div>
         <div class="detail-name">${c.name||'（名前未入力）'}</div>
-        <div class="detail-meta">${ML2[c.levelKey]||c.levelKey||''} · ${new Date(c.createdAt).toLocaleDateString('ja-JP')} · ${c.visitType==='store'?'ご来店':'リモート'}</div>
+        <div class="detail-meta">${ML[c.levelKey]||''} · ${new Date(c.createdAt).toLocaleDateString('ja-JP')} · ${c.visitType==='store'?'ご来店':'リモート'}</div>
       </div>
     </div>
-
     <div class="dc">
       <div class="dc-title">連絡先</div>
       <div class="ans-row"><span class="ans-q">電話</span><span class="ans-a">${c.phone||'—'}</span></div>
       <div class="ans-row"><span class="ans-q">メール</span><span class="ans-a" style="font-size:12px">${c.email||'—'}</span></div>
     </div>
-
-    ${sc!=null?`
-    <div class="dc">
+    ${sc!=null?`<div class="dc">
       <div class="dc-title">成約スコア</div>
       <div class="score-row">
         <span class="score-big" style="color:${scC}">${sc}</span>
         <span class="score-hint">${sc>=70?'高い成約可能性':sc>=40?'通常フォロー推奨':'追加ヒアリング必要'}</span>
       </div>
       <div class="score-track"><div class="score-fill" style="width:${sc}%;background:${scC}"></div></div>
-    </div>`:'' }
-
+    </div>`:''}
     <div class="dc">
       <div class="dc-title">ステータス</div>
       <div class="status-row">
@@ -1807,7 +1217,6 @@ async function viewDetail(id){
             onclick="updStatus('${id}','${k}')">${s.l}</button>`).join('')}
       </div>
     </div>
-
     ${c.summary?`
     <div class="dc">
       <div class="dc-title">顧客概要</div>
@@ -1815,13 +1224,8 @@ async function viewDetail(id){
     </div>
     <div class="dc">
       <div class="dc-title">優先順位</div>
-      <div class="pri-list">
-        ${(c.summary.priorities||[]).map((p,i)=>`
-          <div class="pri-row">
-            <div class="pri-n">${i+1}</div>
-            <div class="pri-t">${p}</div>
-          </div>`).join('')}
-      </div>
+      ${(c.summary.priorities||[]).map((p,i)=>`
+        <div class="pri-row"><div class="pri-n">${i+1}</div><div class="pri-t">${p}</div></div>`).join('')}
     </div>
     <div class="dc">
       <div class="dc-title">隠れニーズ</div>
@@ -1830,18 +1234,14 @@ async function viewDetail(id){
     <div class="dc">
       <div class="dc-title">提案方針</div>
       <div class="proposal-box">${c.summary.proposal||''}</div>
-    </div>
-    `:`<div class="dc" style="text-align:center;padding:20px;color:var(--text3);font-size:13px;line-height:1.7">
-      ${getAiKey()?'AIサマリーを生成中...<br>しばらくしてから更新してください':'設定からAIキーを入力すると<br>サマリーが自動生成されます'}
+    </div>`
+    :`<div class="dc" style="text-align:center;padding:20px;color:var(--text3);font-size:13px;line-height:1.7">
+      ${getAiKey()?'AIサマリー生成中...<br>しばらくしてから更新してください':'設定からAIキーを入力するとサマリーが生成されます'}
     </div>`}
-
     <div class="dc">
       <div class="dc-title">回答内容</div>
       ${Object.entries(c.answers||{}).map(([k,v])=>`
-        <div class="ans-row">
-          <span class="ans-q">${k}</span>
-          <span class="ans-a">${v}</span>
-        </div>`).join('')}
+        <div class="ans-row"><span class="ans-q">${k}</span><span class="ans-a">${v}</span></div>`).join('')}
     </div>`;
 }
 
@@ -1867,7 +1267,7 @@ function savePw(){
   const v=$('set-pw').value.trim();
   if(!v){alert('パスワードを入力してください');return;}
   setLs('re_pw',v); $('set-pw').value='';
-  showOkMsg('pw-ok');
+  showMsg('pw-ok');
 }
 
 async function saveCloud(){
@@ -1893,17 +1293,14 @@ async function saveCloud(){
   $('cloud-err').style.display='none';
   $('cloud-ok').textContent='✓ クラウド接続完了！別のスマホでも共有できます';
   $('cloud-ok').style.display='block';
-  $('sync-dot').style.display='block';
-  $('sync-dot').style.background='#30d158';
 }
 
 function saveAiKey(){
-  const v=$('set-akey').value.trim();
-  localStorage.setItem('re_akey',v);
-  showOkMsg('ai-ok');
+  localStorage.setItem('re_akey',$('set-akey').value.trim());
+  showMsg('ai-ok');
 }
 
-function showOkMsg(id){
+function showMsg(id){
   const el=$(id);
   el.style.display='block';
   setTimeout(()=>el.style.display='none',2500);
